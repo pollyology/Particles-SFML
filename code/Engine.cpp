@@ -8,23 +8,37 @@ Engine::Engine()
 void Engine::run()
 {
 	Clock clock;
+	// *********** UNIT TEST ************
+	cout << "Starting Particle unit tests..." << endl;
+    Particle p(m_Window, 4, { (int)m_Window.getSize().x / 2, (int)m_Window.getSize().y / 2 });
+    p.unitTests();
+    cout << "Unit tests complete.  Starting engine..." << endl;
+	// **********************************
 
 	while (m_Window.isOpen)
 	{
-		clock.restart();
+		Time time = clock.restart();
+		float dt = time.asSeconds();
 		input();
-		update();
+		update(dt);
 		draw();
 	}
 }
 
 void Engine::input()
 {
-	Event queue;
-	while (m_Window.pollEvent(queue))
+	Event event;
+	m_Window.setFrameLimit(60);
+
+	// TO DO: Experiment using range of only odd numbers
+	int min = 25;
+	int max = 50;
+	int random = rand() % (max - min + 1) + min; 
+
+	while (m_Window.pollEvent(event))
 	{
 		Vector2i mousePos(event.mouseButton.x, event.mouseButton.y);
-		int numPoints;
+		int numPoints = random;
 		int numParticles = 5; // number of particles you want to create
 
 		if (event.type == Event::Closed)
@@ -40,7 +54,7 @@ void Engine::input()
 			}
 		}
 
-		if (event.type == Event::KeyPressed && event.key.code == Keyboard::Esc) 
+		if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape) 
 		{
 			m_Window.close();
 		}
@@ -50,11 +64,12 @@ void Engine::input()
 
 void Engine::update(float dtAsSeconds)
 {
+
 	for (auto it : m_particles.begin(); it != m_particles.end();)
 	{
 		if (it->getTTL() > 0.0)
 		{
-			it->.update(dt);
+			it->.update(dtAsSeconds);
 			it++;
 		}
 		else

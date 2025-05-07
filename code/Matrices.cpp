@@ -123,7 +123,7 @@ RotationMatrix::RotationMatrix(double theta) : Matrix(2, 2)
 ScalingMatrix::ScalingMatrix(double scale) : Matrix(2, 2)
 {
 	// Hardcode scalar values in 2x2 matrix
-	a.at(0).at(0) = scale;
+	a.at(0).at(0) = scale;	
 	a.at(1).at(1) = scale;
 }
 
