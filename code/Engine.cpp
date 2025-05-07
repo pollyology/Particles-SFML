@@ -2,7 +2,8 @@
 
 Engine::Engine()
 {
-	m_Window.create(VideoMode::getDesktopMode);
+	m_Window.create(WINDOW_MODE, WINDOW_TITLE);
+	m_Window.setFramerateLimit(TARGET_FPS);
 }
 
 void Engine::run()
@@ -15,7 +16,7 @@ void Engine::run()
     cout << "Unit tests complete.  Starting engine..." << endl;
 	// **********************************
 
-	while (m_Window.isOpen)
+	while (m_Window.isOpen())
 	{
 		Time time = clock.restart();
 		float dt = time.asSeconds();
@@ -28,7 +29,6 @@ void Engine::run()
 void Engine::input()
 {
 	Event event;
-	m_Window.setFrameLimit(60);
 
 	// TO DO: Experiment using range of only odd numbers
 	int min = 25;
@@ -50,7 +50,7 @@ void Engine::input()
 		{
 			for (int i = 0; i < numParticles; i++)
 			{
-				Particle(m_Window, numPoints, mousePos);
+				Particle particle(m_Window, numPoints, mousePos);
 			}
 		}
 
@@ -65,11 +65,11 @@ void Engine::input()
 void Engine::update(float dtAsSeconds)
 {
 
-	for (auto it : m_particles.begin(); it != m_particles.end();)
+	for (auto it = m_particles.begin(); it != m_particles.end(); it++)
 	{
 		if (it->getTTL() > 0.0)
 		{
-			it->.update(dtAsSeconds);
+			it->update(dtAsSeconds);
 			it++;
 		}
 		else

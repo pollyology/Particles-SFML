@@ -2,6 +2,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Particle.h"
+#include "config.h"
 using namespace sf;
 using namespace std;
 
