@@ -103,4 +103,41 @@ namespace Matrices
         }
         return os;
     }
+
+//	+===================================+
+//	|		MATRIX CONSTRUCTORS			|	
+//	+===================================+
+
+///	2D rotation matrix
+///	usage:  A = R * A rotates A theta radians counter-clockwise
+RotationMatrix::RotationMatrix(double theta) : Matrix(2, 2)
+{
+	a.at(0).at(0) = cos(theta);	   // (0,0) -> cos(theta)
+	a.at(0).at(1) = -sin(theta);  // (0,1) -> -sin(theta)
+	a.at(1).at(0) = sin(theta);  // (1,0) -> sin(theta)
+	a.at(1).at(1) = cos(theta); // (1,1) -> cos(theta)
+}
+
+///	2D scaling matrix
+///	usage:  A = S * A expands or contracts A by the specified scaling factor
+ScalingMatrix::ScalingMatrix(double scale) : Matrix(2, 2)
+{
+	// Hardcode scalar values in 2x2 matrix
+	a.at(0).at(0) = scale;
+	a.at(1).at(1) = scale;
+}
+
+///2D Translation matrix
+///usage:  A = T + A will shift all coordinates of A by (xShift, yShift)
+TranslationMatrix::TranslationMatrix(double xShift, double yShift, int nCols) : Matrix(2, nCols)
+{
+	for (int i = 0; i < 2; i++)
+	{
+		for (int j = 0; j < nCols; j++)
+		{
+			a.at(i).at(j) += (i == 0) ? xShift : yShift; // Hardcode x and y to row 0 and 1
+		}
+	}
+}
+
 }
