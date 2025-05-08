@@ -9,8 +9,15 @@
 // |	PUBLIC FUNCTIONS	|
 // +========================+
 Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition)
+    : m_A(2, numPoints), m_ttl(TTL), m_numPoints(numPoints)
 {
+    float randFraction = (float)rand() / RAND_MAX;  // create fraction between 0-1
+    m_radiansPerSec = randFraction * M_PI;
+    m_cartesianPlane.setCenter(0,0);
+    m_cartesianPlane.setSize(target.getSize().x, (-1.0) * target.getSize().y);
+    m_centerCoordinate = target.mapPixelToCoords(mouseClickPosition, m_cartesianPlane);
 
+    // TO DO:
 }
 
 virtual void Particle::draw(RenderTarget& target, RenderStates states) const override
