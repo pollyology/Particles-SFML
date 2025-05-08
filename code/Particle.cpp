@@ -12,16 +12,54 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosit
     : m_A(2, numPoints), m_ttl(TTL), m_numPoints(numPoints)
 {
     float randFraction = (float)rand() / RAND_MAX;  // create fraction between 0-1
-    m_radiansPerSec = randFraction * M_PI;
+    m_radiansPerSec = randFraction * M_PI; 
     m_cartesianPlane.setCenter(0,0);
     m_cartesianPlane.setSize(target.getSize().x, (-1.0) * target.getSize().y);
     m_centerCoordinate = target.mapPixelToCoords(mouseClickPosition, m_cartesianPlane);
 
-    // TO DO:
+    m_vx = rand() % 401 + 100; // Random number between 100 and 500
+    m_vy = rand() % 401 + 100; // Random number between 100 and 500
+    m_vx = (rand() % 2 == 0) ? m_vx : m_vx * -1; // Randomizes m_vx to be positive or negative
+
+    m_color1 = Color::Red;  // default color selection, feel free to change
+    m_color2 = Color::Blue;
+
+    double theta = randFraction / M_PI;
+    double dTheta = 2 * M_PI / (numPoints - 1);
+
+    for (int j = 0; j < numPoints; j++)
+    {
+        double r = rand() % 61 + 20; // Random number between 20 and 80
+        double dx = r * cos(theta);
+        double dy = r * sin(theta);
+
+        m_A(0, j) = m_centerCoordinate.x + dx;
+        m_A(1, j) = m_centerCoordinate.y + dx;
+        
+        theta += dTheta;
+    }
 }
 
-virtual void Particle::draw(RenderTarget& target, RenderStates states) const override
+void Particle::draw(RenderTarget& target, RenderStates states) const
 {
+    VertexArray lines(TriangleFan, m_numPoints + 1);
+    Vector2i coordToPixel = target.mapCoordsToPixel(m_centerCoordinate, m_cartesianPlane);
+    Vector2f center = static_cast<Vector2f>(coordToPixel);
+
+    lines[0].position = center;
+    lines[0].color = m_color1;
+
+    for (int j = 1; j <= m_numPoints; j++)
+    {
+        float x = (float)m_A(0, j - 1);
+        float y = (float)m_A(1, j - 1);
+
+        Vector2f matrixCoord(x, y);
+        lines[j].position = static_cast<Vector2f>(target.mapCoordsToPixel(matrixCoord, m_cartesianPlane));
+        lines[j].color = m_color2;
+    }
+
+    target.draw(lines);
 
 }
 
@@ -221,7 +259,8 @@ void Particle::scale(double c)
 ///construct a TranslationMatrix T, add it to m_A
 void Particle::translate(double xShift, double yShift)
 {
-	TranslationMatrix T(xShift, yShift, m_A.getRows());
+    int nCols = m_A.getCols();
+	TranslationMatrix T(xShift, yShift, nCols);
 	m_A = T + m_A;
 	m_centerCoordinate.x += xShift;
 	m_centerCoordinate.y += yShift;

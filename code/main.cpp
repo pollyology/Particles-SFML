@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include <SFML/Audio.hpp>
 
 int main()
 {
@@ -33,7 +34,7 @@ int main()
 	Clock clock;
 
 	float frameTime = 0.1f;
-	int frameCount = frame.size(); // number of frames
+	int frameCount = frames.size(); // number of frames
 
 	for (int i = 0; i < frameCount; i++)
 	{

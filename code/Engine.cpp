@@ -2,6 +2,7 @@
 
 Engine::Engine()
 {
+	VideoMode WINDOW_MODE(WINDOW_WIDTH, WINDOW_HEIGHT);
 	m_Window.create(WINDOW_MODE, WINDOW_TITLE);
 	m_Window.setFramerateLimit(TARGET_FPS);
 }
