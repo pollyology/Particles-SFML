@@ -9,7 +9,13 @@
 // |	PUBLIC FUNCTIONS	|
 // +========================+
 Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition)
+    : m_A(2, numPoints), m_ttl(TTL), m_numPoints(numPoints)
 {
+    float randFraction = (float)rand() / RAND_MAX;  // create fraction between 0-1
+    m_radiansPerSec = randFraction * M_PI;
+    m_cartesianPlane.setCenter(0,0);
+    m_cartesianPlane.setSize(target.getSize().x, (-1.0) * target.getSize().y);
+    m_centerCoordinate = target.mapPixelToCoords(mouseClickPosition, m_cartesianPlane);
 
 }
 
@@ -214,7 +220,8 @@ void Particle::scale(double c)
 ///construct a TranslationMatrix T, add it to m_A
 void Particle::translate(double xShift, double yShift)
 {
-	TranslationMatrix T(xShift, yShift, m_A.getRows());
+    int nCols = m_A.getCols();
+	TranslationMatrix T(xShift, yShift, nCols);
 	m_A = T + m_A;
 	m_centerCoordinate.x += xShift;
 	m_centerCoordinate.y += yShift;
