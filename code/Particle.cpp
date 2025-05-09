@@ -21,6 +21,19 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosit
 
 virtual void Particle::draw(RenderTarget& target, RenderStates states) const override
 {
+// convert matrix m_A --> pixel coord (VertexArry; type: TriangleFan)
+    // construct
+    VertexArray lines(TriangleFan, numPoints + 1);
+    Vector2f center = target.mapCoordsToPixel(m_centerCoordinate, m_cartesianPlane);
+    lines[0].position = center;
+    lines[0].color = m_color;
+
+    for (int j = 1; j <= m_numPoints; j++) {
+        Vector2f point = target.mapCoordsToPixel(m_A[j-1], m_cartesianPlane)
+        lines[j].position = point;
+        lines[j].color = m_Color2
+    }
+    target.draw(lines);
 
 }
 
