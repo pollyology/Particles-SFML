@@ -9,5 +9,5 @@ constexpr int WINDOW_HEIGHT = 1080 / 2;
 constexpr int TARGET_FPS = 60;
 
 std::string const FONT_FILE = "assets/fonts/Celsius Flower.ttf";
-std::string const FILE_MUSIC = "assets/My Little Pony - Friendship is Magic - Opening.ogg";
+std::string const FILE_MUSIC = "assets/music/MLP_Extended.flac";
 
