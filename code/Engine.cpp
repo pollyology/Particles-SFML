@@ -9,7 +9,7 @@ Engine::Engine()
 	//	+-------------------------------+
 	//	|		ANIMATION HANDLING		|
 	//	+-------------------------------+
-	int frameCount = 27; // number of total frames in animation folder
+	int frameCount = 27; // Set this to number of total frames in animation folder
 	for (int i = 0; i < frameCount; i++)
 	{
 		Texture texture;
@@ -98,6 +98,7 @@ void Engine::update(float dtAsSeconds)
 		m_sprite.setTexture(m_frames[m_currentFrame]); // Set new frame texture
 	}
 
+	// Logic for updating particles and TTL
 	for (auto it = m_particles.begin(); it != m_particles.end();)
 	{
 		if (it->getTTL() > 0.0)
@@ -109,7 +110,6 @@ void Engine::update(float dtAsSeconds)
 		{
 			it = m_particles.erase(it);
 		}
-
 	}
 }
 
