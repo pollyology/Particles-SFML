@@ -32,16 +32,23 @@ void Engine::input()
 {
 	Event event;
 
-	// TO DO: Experiment using range of only odd numbers
-	int min = 25;
-	int max = 50;
-	int random = rand() % (max - min + 1) + min;
+	// === Experiment with range to change shape diversity ===
+	int min = 8;	// If min < 8, program will sometimes create triangle particles
+	int max = 20;
+	int numParticles = 5; // number of particles you want to create per click
+
+	Music music;
+	if (!music.openFromFile(FILE_MUSIC))
+	{
+		cout << "Unable to load music file \n";
+	}
+
+	music.setLoop(true);
+	music.play();
 
 	while (m_Window.pollEvent(event))
 	{
 		Vector2i mousePos(event.mouseButton.x, event.mouseButton.y);
-		int numPoints = random;
-		int numParticles = 5; // number of particles you want to create
 
 		if (event.type == Event::Closed)
 		{
@@ -52,11 +59,12 @@ void Engine::input()
 		{
 			for (int i = 0; i < numParticles; i++)
 			{
+				int random = rand() % (max - min + 1) + min;
+				if (random % 2 == 0) { random++; } // Ensures random number is odd, even points create 'floppy' shapes
+				int numPoints = random;
+
 				Particle particle(m_Window, numPoints, mousePos);
-<<<<<<< HEAD
-=======
 				m_particles.emplace_back(particle);
->>>>>>> d0e7b97790bc27f51aa8059da8b37bf628b5adc2
 			}
 			cout << "Current mouse click : " << mousePos.x << ", " << mousePos.y << endl;
 			cout << "Patricle count: " << m_particles.size() << endl;
@@ -67,17 +75,12 @@ void Engine::input()
 			m_Window.close();
 		}
 	}
-
 }
 
 void Engine::update(float dtAsSeconds)
 {
 
-<<<<<<< HEAD
-	for (auto it = m_particles.begin(); it != m_particles.end(); it++)
-=======
 	for (auto it = m_particles.begin(); it != m_particles.end();)
->>>>>>> d0e7b97790bc27f51aa8059da8b37bf628b5adc2
 	{
 		if (it->getTTL() > 0.0)
 		{
@@ -99,17 +102,16 @@ void Engine::draw()
 	font.loadFromFile(FONT_FILE);
 	text.setFont(font);
 	text.setFillColor(Color::White);
-
 	text.setString("Hello, this is a test.");
 
 	m_Window.clear();
+	m_Window.draw(text);
 
 	for (auto& particle : m_particles)
 	{
 		m_Window.draw(particle);
-		//cout << "Drawing particle... \n";
 	}
-	m_Window.draw(text);
+	
 	m_Window.display();
 
 }

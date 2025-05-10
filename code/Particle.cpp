@@ -1,9 +1,4 @@
 #include "Particle.h"
-// TO DO
-
-// Public:
-// Particle()
-// draw()
 
 // +========================+
 // |	PUBLIC FUNCTIONS	|
@@ -11,43 +6,36 @@
 Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition)
     : m_A(2, numPoints), m_ttl(TTL), m_numPoints(numPoints)
 {
-<<<<<<< HEAD
-    float randFraction = (float)rand() / RAND_MAX;  // create fraction between 0-1
-    m_radiansPerSec = randFraction * M_PI; 
-    m_cartesianPlane.setCenter(0,0);
-=======
-    //cout << "Constructing particle... \n";
     float randFraction = (float)rand() / RAND_MAX;  // create fraction between 0-1
     m_radiansPerSec = randFraction * M_PI;
     m_cartesianPlane.setCenter(0, 0);
->>>>>>> d0e7b97790bc27f51aa8059da8b37bf628b5adc2
     m_cartesianPlane.setSize(target.getSize().x, (-1.0) * target.getSize().y);
     m_centerCoordinate = target.mapPixelToCoords(mouseClickPosition, m_cartesianPlane);
+    // cout << "Coordinate center: (" << m_centerCoordinate.x << ", " << m_centerCoordinate.y << ")" << endl;
 
-    m_vx = rand() % 401 + 100; // Random number between 100 and 500
-    m_vy = rand() % 401 + 100; // Random number between 100 and 500
+    m_vx = rand() % 401 + 100; // Random velocity between 100 and 500
+    m_vy = rand() % 401 + 100; // Random velocity between 100 and 500
     m_vx = (rand() % 2 == 0) ? m_vx : m_vx * -1; // Randomizes m_vx to be positive or negative
 
-    m_color1 = Color::Red;  // default color selection, feel free to change
+    // === Default color selection, feel free to change ===
+    m_color1 = Color::Red;  
     m_color2 = Color::Blue;
 
     double theta = randFraction / M_PI;
     double dTheta = 2 * M_PI / (numPoints - 1);
 
+    // Logic for making star-like shapes
+    double outerRadius = rand() % 61 + 12; // A random distance - determines length of each 'tip' of the star
+    double innerRadius = outerRadius / 2; // A fraction of outer radius - determines depth of each 'dip' of the star
+
     for (int j = 0; j < numPoints; j++)
     {
-        double r = rand() % 61 + 20; // Random number between 20 and 80
+        double r = (j % 2 == 0) ? outerRadius : innerRadius; // Alternate between drawing 'tip' then 'dip' for each vertex
         double dx = r * cos(theta);
         double dy = r * sin(theta);
 
         m_A(0, j) = m_centerCoordinate.x + dx;
-<<<<<<< HEAD
-        m_A(1, j) = m_centerCoordinate.y + dx;
-        
-=======
         m_A(1, j) = m_centerCoordinate.y + dy;
-
->>>>>>> d0e7b97790bc27f51aa8059da8b37bf628b5adc2
         theta += dTheta;
     }
 }
@@ -55,9 +43,7 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosit
 void Particle::draw(RenderTarget& target, RenderStates states) const
 {
     VertexArray lines(TriangleFan, m_numPoints + 1);
-    Vector2i coordToPixel = target.mapCoordsToPixel(m_centerCoordinate, m_cartesianPlane);
-    Vector2f center = static_cast<Vector2f>(coordToPixel);
-<<<<<<< HEAD
+    Vector2f center(target.mapCoordsToPixel(m_centerCoordinate, m_cartesianPlane));
 
     lines[0].position = center;
     lines[0].color = m_color1;
@@ -68,24 +54,8 @@ void Particle::draw(RenderTarget& target, RenderStates states) const
         float y = (float)m_A(1, j - 1);
 
         Vector2f matrixCoord(x, y);
-        lines[j].position = static_cast<Vector2f>(target.mapCoordsToPixel(matrixCoord, m_cartesianPlane));
-        lines[j].color = m_color2;
-    }
-
-    target.draw(lines);
-=======
->>>>>>> d0e7b97790bc27f51aa8059da8b37bf628b5adc2
-
-    lines[0].position = center;
-    lines[0].color = m_color1;
-
-    for (int j = 1; j <= m_numPoints; j++)
-    {
-        float x = (float)m_A(0, j - 1);
-        float y = (float)m_A(1, j - 1);
-
-        Vector2f matrixCoord(x, y);
-        lines[j].position = static_cast<Vector2f>(target.mapCoordsToPixel(matrixCoord, m_cartesianPlane));
+        Vector2f mappedCoord(target.mapCoordsToPixel(matrixCoord, m_cartesianPlane));
+        lines[j].position = mappedCoord;
         lines[j].color = m_color2;
     }
 
@@ -290,15 +260,8 @@ void Particle::scale(double c)
 void Particle::translate(double xShift, double yShift)
 {
     int nCols = m_A.getCols();
-<<<<<<< HEAD
-	TranslationMatrix T(xShift, yShift, nCols);
-	m_A = T + m_A;
-	m_centerCoordinate.x += xShift;
-	m_centerCoordinate.y += yShift;
-=======
     TranslationMatrix T(xShift, yShift, nCols);
     m_A = T + m_A;
     m_centerCoordinate.x += xShift;
     m_centerCoordinate.y += yShift;
->>>>>>> d0e7b97790bc27f51aa8059da8b37bf628b5adc2
 }

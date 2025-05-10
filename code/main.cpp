@@ -1,8 +1,9 @@
 #include "Engine.h"
-#include <SFML/Audio.hpp>
 
 int main()
 {
+	// Seed the random number generator
+	srand(time(0));
 	// Declare an instance of Engine
 	Engine engine;
 	// Start the engine

@@ -88,9 +88,10 @@ namespace Matrices
         public:
             ///Call the parent constructor to create a 2x2 matrix
             ///Then assign each element as follows:
-            /*
-            scale   0
-            0       scale
+            /* 2 x 
+            scale   0       0
+            0       scale   0
+            0       0       scale
             */
             ///scale represents the size multiplier
             ScalingMatrix(double scale);
