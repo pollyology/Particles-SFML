@@ -17,12 +17,13 @@ private:
 	// Vector to hold textures for animation
 	vector<Texture> m_frames;
 
-	// Sprite to display the current frame
+	// Sprite to display the current animation frame
 	Sprite m_sprite;
 
-	int m_currentFrame; // Initial frame
-	float m_animationSpeed; // Time per frame (seconds)
-	float m_elapsedTime; // Time accumulator
+	int m_currentFrame; // Current frame number of animation
+	float m_frameTime; // Amount of time spent per frame (seconds)
+	float m_dt;       // Measure amount of elapsed time (seconds)
+
 
 	// Private functions for internal use only
 	void input();

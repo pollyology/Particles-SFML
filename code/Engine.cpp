@@ -9,19 +9,19 @@ Engine::Engine()
 	//	+-------------------------------+
 	//	|		ANIMATION HANDLING		|
 	//	+-------------------------------+
-	int frameCount = 27; // number of total frames in animation folder
-	for (int i = 0; i < frameCount; i++)
-	{
-		Texture texture;
-		texture.loadFromFile("assets/animation/frame_" + std::to_string(i) + ".png");
-		m_frames.push_back(texture);
-	}
-	m_sprite.setTexture(m_frames[0]);
-	m_sprite.setScale(Vector2f(0.5, 0.5));
+		int frameCount = 27; // Manually set this to number of total frames in animation folder
+		for (int i = 0; i < frameCount; i++)
+		{
+			Texture texture;
+			texture.loadFromFile("assets/animation/frame_" + std::to_string(i) + ".png");
+			m_frames.push_back(texture);
+		}
+		m_sprite.setTexture(m_frames[0]);
+		m_sprite.setScale(Vector2f(0.5, 0.5)); // Tweak to adjust sprite size
 
-	m_currentFrame = 0; // Initial frame
-	m_animationSpeed = 0.025f; // Time per frame (seconds)
-	m_elapsedTime = 0.0f; // Time accumulator
+		m_currentFrame = 0;
+		m_frameTime = 0.025f; // Tweak to adjust animation speed, smaller = faster
+		m_dt = 0;
 }
 
 void Engine::run()
@@ -87,17 +87,17 @@ void Engine::input()
 
 void Engine::update(float dtAsSeconds)
 {
-	// Accumulate elapsed time for frame change
-	m_elapsedTime += dtAsSeconds;
+	// Logic for updating aniamtion and drawing frames
+	m_dt += dtAsSeconds;
 
-	// Check if it's time to update the frame
-	if (m_elapsedTime >= m_animationSpeed)
+	if (m_dt >= m_frameTime)
 	{
-		m_elapsedTime -= m_animationSpeed; // Reset elapsed time
-		m_currentFrame = (m_currentFrame + 1) % m_frames.size(); // Loop through frames
-		m_sprite.setTexture(m_frames[m_currentFrame]); // Set new frame texture
+		m_dt -= m_frameTime;
+		m_currentFrame = (m_currentFrame + 1) % m_frames.size(); // After reaching last frame, loops animation back to frame 0
+		m_sprite.setTexture(m_frames[m_currentFrame]);			// Updates sprite texture to draw current frame
 	}
 
+	// Logic for updating particles and TTL
 	for (auto it = m_particles.begin(); it != m_particles.end();)
 	{
 		if (it->getTTL() > 0.0)
@@ -109,12 +109,12 @@ void Engine::update(float dtAsSeconds)
 		{
 			it = m_particles.erase(it);
 		}
-
 	}
 }
 
 void Engine::draw()
 {
+
 	Text text;
 	Font font;
 	font.loadFromFile(FONT_FILE);
@@ -122,8 +122,9 @@ void Engine::draw()
 	text.setFillColor(Color::White);
 	text.setString("Hello, this is a test.");
 
+
 	// Drawing
-	Color color(154, 218, 248, 155); // Background color
+	Color color(154, 218, 248, 155); // Background color (Rainbow Dash Blue lol)
 
 	m_Window.clear(color);
 	m_Window.draw(text);

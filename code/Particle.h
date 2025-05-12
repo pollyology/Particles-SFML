@@ -29,9 +29,10 @@ private:
     float m_vx;
     float m_vy;
     View m_cartesianPlane;
-    Color m_color1;
-    Color m_color2;
+    Color m_color1;         // Fill color
+    Color m_color2;         // Outline color
     Matrix m_A;
+    mutable VertexArray m_lines;
 
     ///rotate Particle by theta radians counter-clockwise
     ///construct a RotationMatrix R, left mulitply it to m_A

@@ -4,7 +4,18 @@ int main()
 {
 	// Seed the random number generator
 	srand(time(0));
-	
+
+	// Initalize textures for cursor
+	//Texture CURSOR_T;
+	//CURSOR_T.loadFromFile(FILE_CURSOR);
+
+	//Texture CURSOR_CLICK_T;
+	//CURSOR_CLICK_T.loadFromFile(FILE_CURSOR_CLICK);
+
+	//Sprite cursor(CURSOR_T);
+	//cursor.setScale(1.0f, 1.0f);
+
+	// Intialize music to be played during program
 	Music music;
 	if (!music.openFromFile(FILE_MUSIC))
 	{
@@ -20,13 +31,4 @@ int main()
 	engine.run();
 	// Quit in the usual way when the engine is stopped
 	return 0;
-
-	const string FILE_BACKGROUND;
-	const string FILE_CURSOR;
-
-	Texture cursorTexture;
-	cursorTexture.loadFromFile(FILE_CURSOR);
-
-	Sprite cursor(cursorTexture);
-	cursor.setScale(1.0f, 1.0f);
 }

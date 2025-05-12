@@ -10,4 +10,5 @@ constexpr int TARGET_FPS = 60;
 
 std::string const FONT_FILE = "assets/fonts/Celsius Flower.ttf";
 std::string const FILE_MUSIC = "assets/music/MLP_Extended.flac";
-
+std::string const FILE_CURSOR = "assets/images/Wand_Cursor.png";
+std::string const FILE_CURSOR_CLICK = "assets/images/Wand_Cursor_Click.png";

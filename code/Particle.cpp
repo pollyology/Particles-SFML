@@ -17,9 +17,19 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosit
     m_vy = rand() % 401 + 100; // Random velocity between 100 and 500
     m_vx = (rand() % 2 == 0) ? m_vx : m_vx * -1; // Randomizes m_vx to be positive or negative
 
-    // === Default color selection, feel free to change ===
+    // === Intialize color selection, feel free to change ===
     m_color1 = Color::Red;  
     m_color2 = Color::Blue;
+
+    m_lines.setPrimitiveType(TriangleFan);
+    m_lines.resize(m_numPoints + 1);
+   
+    m_lines[0].color = m_color1;
+    for (int j = 1; j <= m_numPoints; j++)
+    {
+        m_lines[j].color = m_color2;
+        m_lines[j].position = Vector2f(0, 0);
+    }
 
     double theta = randFraction / M_PI;
     double dTheta = 2 * M_PI / (numPoints - 1);
@@ -42,11 +52,8 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosit
 
 void Particle::draw(RenderTarget& target, RenderStates states) const
 {
-    VertexArray lines(TriangleFan, m_numPoints + 1);
     Vector2f center(target.mapCoordsToPixel(m_centerCoordinate, m_cartesianPlane));
-
-    lines[0].position = center;
-    lines[0].color = m_color1;
+    m_lines[0].position = center;
 
     for (int j = 1; j <= m_numPoints; j++)
     {
@@ -55,16 +62,29 @@ void Particle::draw(RenderTarget& target, RenderStates states) const
 
         Vector2f matrixCoord(x, y);
         Vector2f mappedCoord(target.mapCoordsToPixel(matrixCoord, m_cartesianPlane));
-        lines[j].position = mappedCoord;
-        lines[j].color = m_color2;
+        m_lines[j].position = mappedCoord;
     }
 
-    target.draw(lines);
+    target.draw(m_lines);
     //cout << "Exit draw\n";
 }
 
 void Particle::update(float dt)
 {
+    // Bigger number = particle fades faster
+    int fadeRate = 150 * dt; 
+
+    // Lowers the alpha value (opacity) smoothly
+    m_color1.a = max(static_cast<int>(m_color1.a - fadeRate), 0);
+    m_color2.a = max(static_cast<int>(m_color2.a - fadeRate), 0);
+    
+    // Updates the particle drawing with current opacity
+    m_lines[0].color = m_color1;
+    for (int j = 1; j <= m_numPoints; j++)
+    {
+        m_lines[j].color = m_color2;
+    }
+    
     m_ttl -= dt;
 
     rotate(dt * m_radiansPerSec);
