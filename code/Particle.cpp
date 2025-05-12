@@ -72,7 +72,7 @@ void Particle::draw(RenderTarget& target, RenderStates states) const
 void Particle::update(float dt)
 {
     // Bigger number = particle fades faster
-    int fadeRate = 150 * dt; 
+    int fadeRate = 250 * dt; 
 
     // Lowers the alpha value (opacity) smoothly
     m_color1.a = max(static_cast<int>(m_color1.a - fadeRate), 0);
