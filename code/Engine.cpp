@@ -12,7 +12,6 @@ Engine::Engine()
 		if (m_music.openFromFile(FILE_MUSIC)) cout << "Music filed loaded \n";
 		m_music.setLoop(true);
 		m_music.setVolume(25);
-		m_music.play();
 
 	//	+-------------------------------+
 	//	|		ANIMATION HANDLING		|
@@ -26,7 +25,8 @@ Engine::Engine()
 		}
 		m_sprite.setTexture(m_frames[0]);
 		m_sprite.setScale(Vector2f(0.5, 0.5)); // Tweak to adjust sprite size
-
+		m_sprite.setOrigin(m_sprite.getLocalBounds().width / 2, m_sprite.getLocalBounds().height / 2);
+		m_sprite.setPosition(m_Window.getSize().x / 2 - 75, m_Window.getSize().y / 2);
 
 		m_currentFrame = 0;
 		m_frameTime = 0.025f; // Tweak to adjust animation speed, smaller = faster
@@ -75,15 +75,48 @@ void Engine::input()
 	{
 		Vector2i mousePos(Mouse::getPosition(m_Window)); // Gets mouse position relative to window size
 
+		//	+---------------------------+
+		//	|		TITLE SCREEN		|
+		//	+---------------------------+
 		if (event.type == Event::Closed)
 		{
 			m_Window.close();
 		}
 
-		if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
+		if (event.type == Event::KeyPressed && Keyboard::Enter)
 		{
-			m_Window.close();
+			m_playButtonSelected = true;
+			cout << "Pressing enter \n";
+			m_music.play();
+			/*switch (event.key.code)	Tracks which key is pressed
+			{
+			case Keyboard::Up:
+			{
+				if (!m_playButtonSelected)
+				{
+					m_playButtonSelected = true;
+					m_exitButtonSelected = false;
+					cout << "Up key pressed \n";
+				}
+			}
+			case Keyboard::Down:
+			{
+				if (!m_exitButtonSelected)
+				{
+					m_playButtonSelected = false;
+					m_exitButtonSelected = true;
+				}
+			}
+			case Keyboard::Enter:
+			{
+				if (m_playButtonSelected) m_playButtonPressed = true;
+				else m_exitButtonPressed == true;
+				cout << "Enter key pressed \n";
+				break;
+			}
+			*/
 		}
+
 
 		//	+---------------------------+
 		//	|		PARTICLE LOGIC		|
@@ -165,26 +198,29 @@ void Engine::update(float dtAsSeconds)
 
 void Engine::draw()
 {
-	Text text;
-	Font font;
-	font.loadFromFile(FONT_FILE);
-	text.setFont(font);
-	text.setFillColor(Color::White);
-	text.setString("Hello, this is a test.");
-
 	// Drawing
 	Color color(154, 218, 248, 155); // Background color (Rainbow Dash Blue lol)
 
 	m_Window.clear(color);
-	m_Window.draw(text);
-	m_Window.draw(m_sprite); // Draw the sprite with the current frame
-	m_Window.draw(m_volumeUI);
-	m_Window.draw(m_border);
 
-	// Draw particles
-	for (auto& particle : m_particles)
+	if (!m_playButtonSelected)
 	{
-		m_Window.draw(particle);
+		m_Window.draw(m_gameTitle);
+		m_Window.draw(m_playButton);
+		//m_Window.draw(m_exitButton);
+	}
+
+	else
+	{
+		m_Window.draw(m_sprite); // Draw the sprite with the current frame
+		m_Window.draw(m_volumeUI);
+		m_Window.draw(m_border);
+
+		// Draw particles
+		for (auto& particle : m_particles)
+		{
+			m_Window.draw(particle);
+		}
 	}
 
 	m_Window.display();
@@ -192,6 +228,45 @@ void Engine::draw()
 
 void Engine::init()
 {
+	//	+---------------------------+
+	//	|		TITLE SCREEN		|
+	//	+---------------------------+
+
+	// Title screen booleans
+	m_playButtonPressed = false;
+	m_playButtonSelected = false;
+	m_exitButtonPressed = false;
+	m_exitButtonSelected = false;
+
+	// Load font from file, them assign font to Text objects
+	m_font.loadFromFile(FONT_FILE);
+
+	m_gameTitle.setFont(m_font);
+	m_playButton.setFont(m_font);
+	m_exitButton.setFont(m_font);
+
+		// Game Title
+		m_gameTitle.setFillColor(Color::White);
+		m_gameTitle.setString("Particles");
+		m_gameTitle.setCharacterSize(50);
+		m_gameTitle.setOrigin(m_gameTitle.getLocalBounds().width / 2, m_gameTitle.getLocalBounds().height / 2);
+		m_gameTitle.setPosition(m_Window.getSize().x / 2, m_Window.getSize().y / 2 - 150);
+
+		// Play Button
+		m_playButton.setFillColor(Color::White);
+		m_playButton.setString("Play");
+		m_playButton.setCharacterSize(25);
+		m_playButton.setOrigin(m_playButton.getLocalBounds().width / 2, m_playButton.getLocalBounds().height / 2);
+		m_playButton.setPosition(m_Window.getSize().x / 2, m_Window.getSize().y / 2 - 50);
+		
+		// Exit Button
+		m_exitButton.setFillColor(Color::White);
+		m_exitButton.setString("Exit");
+		m_exitButton.setCharacterSize(25);
+		m_exitButton.setOrigin(m_exitButton.getLocalBounds().width / 2, m_exitButton.getLocalBounds().height / 2);
+		m_exitButton.setPosition(m_Window.getSize().x / 2, m_Window.getSize().y / 2 - 25);
+
+
 	// Volume Texture
 	if (m_volumeTextureON.loadFromFile(FILE_VOLUME_ON)) cout << "Volume on texture loaded \n";
 	if (m_volumeTextureOFF.loadFromFile(FILE_VOLUME_OFF)) cout << "Volume off texture loaded \n";
