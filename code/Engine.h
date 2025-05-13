@@ -33,7 +33,19 @@ private:
 
 	// Music to play during program, can be toggled ON/OFF
 	Music m_music;
+	
+	// Text to create Title Screen w/ 'Play' and 'Exit' options
+	Text m_gameTitle;
+	Text m_playButton;
+	Text m_exitButton;
+	Font m_font;
 
+		// Booleans for handling menu selection
+		bool m_playButtonPressed; 
+		bool m_playButtonSelected;
+
+		bool m_exitButtonPressed;
+		bool m_exitButtonSelected;
 
 	// Private functions for internal use only
 	void input();
