@@ -9,7 +9,7 @@ Engine::Engine()
 	//	+---------------------------+
 	//	|	MUSIC INITIALIZATION	|
 	//	+---------------------------+
-		if (m_music.openFromFile(FILE_MUSIC)) cout << "Music filed loaded \n";
+		if (m_music.openFromFile(FILE_MUSIC)) cout << "Music file loaded \n";
 		m_music.setLoop(true);
 		m_music.setVolume(25);
 
@@ -74,52 +74,60 @@ void Engine::input()
 	while (m_Window.pollEvent(event))
 	{
 		Vector2i mousePos(Mouse::getPosition(m_Window)); // Gets mouse position relative to window size
+		FloatRect playButtonBounds = m_playButton.getGlobalBounds();
+		FloatRect exitButtonBounds = m_exitButton.getGlobalBounds();
 
 		//	+---------------------------+
 		//	|		TITLE SCREEN		|
 		//	+---------------------------+
-		if (event.type == Event::Closed)
+		if (event.type == Event::Closed || event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
 		{
 			m_Window.close();
 		}
 
-		if (event.type == Event::KeyPressed && Keyboard::Enter)
+		// === Button Hover ===
+		if (event.type == Event::MouseMoved)
 		{
-			m_playButtonSelected = true;
-			cout << "Pressing enter \n";
-			m_music.play();
-			/*switch (event.key.code)	Tracks which key is pressed
-			{
-			case Keyboard::Up:
-			{
-				if (!m_playButtonSelected)
+
+				if (playButtonBounds.contains(static_cast<Vector2f>(mousePos)))
 				{
-					m_playButtonSelected = true;
-					m_exitButtonSelected = false;
-					cout << "Up key pressed \n";
+					m_playButton.setColor(Color::Yellow);
+					m_playButton.setScale(Vector2f(1.075, 1.075));
 				}
-			}
-			case Keyboard::Down:
-			{
-				if (!m_exitButtonSelected)
+				else if (exitButtonBounds.contains(static_cast<Vector2f>(mousePos)))
 				{
-					m_playButtonSelected = false;
-					m_exitButtonSelected = true;
+					m_exitButton.setColor(Color::Yellow);
+					m_exitButton.setScale(Vector2f(1.075, 1.075));
 				}
-			}
-			case Keyboard::Enter:
+				else
+				{
+					m_playButton.setColor(Color::White);
+					m_playButton.setScale(Vector2f(1.0, 1.0));
+					m_exitButton.setColor(Color::White);
+					m_exitButton.setScale(Vector2f(1.0, 1.0));
+				}
+		}
+		// === Button Click ===
+		if (mouseLeftPressed && !mouseClickPrevious)
+		{
+			if (playButtonBounds.contains(static_cast<Vector2f>(mousePos)))
 			{
-				if (m_playButtonSelected) m_playButtonPressed = true;
-				else m_exitButtonPressed == true;
-				cout << "Enter key pressed \n";
-				break;
+				m_playButtonClicked = true;
+				cout << "Play button clicked \n";
+				m_music.play();
 			}
-			*/
+		}
+		if (mouseLeftPressed && !mouseClickPrevious)
+		{
+			if (exitButtonBounds.contains(static_cast<Vector2f>(mousePos)))
+			{
+				m_exitButtonClicked = true;
+				m_Window.close();
+			}
 		}
 
-
 		//	+---------------------------+
-		//	|		PARTICLE LOGIC		|
+		//	|		PARTICLES LOGIC		|
 		//	+---------------------------+
 		if (mouseLeftPressed)
 		{
@@ -172,8 +180,7 @@ void Engine::input()
 		FloatRect buttonBounds = m_specialButton.getGlobalBounds();
 		buttonBounds.height -= 5;
 
-
-		if (buttonBounds.contains(static_cast<Vector2f>(mousePos)))
+		if (buttonBounds.contains(static_cast<Vector2f>(mousePos)) && !mouseClickPrevious)
 		{
 			m_specialButton.setScale(Vector2f(1.075, 1.075));
 
@@ -187,7 +194,6 @@ void Engine::input()
 		{
 			m_specialButton.setScale(Vector2f(1.0, 1.0));
 		}
-
 		mouseClickPrevious = mouseLeftPressed;
 	}
 }
@@ -226,24 +232,25 @@ void Engine::draw()
 
 	m_Window.clear(color);
 
-	if (!m_playButtonSelected)
+	if (!m_playButtonClicked)
 	{
 		m_Window.draw(m_gameTitle);
 		m_Window.draw(m_playButton);
-		//m_Window.draw(m_exitButton);
+		m_Window.draw(m_exitButton);
 	}
 	else
 	{
-		m_Window.draw(m_specialButton);
 		m_Window.draw(m_sprite); // Draw the sprite with the current frame
-		m_Window.draw(m_volumeUI);
-		m_Window.draw(m_border);
+		m_Window.draw(m_specialButton);
 
 		// Draw particles
 		for (auto& particle : m_particles)
 		{
 			m_Window.draw(particle);
 		}
+
+		m_Window.draw(m_volumeUI);
+		m_Window.draw(m_border);
 	}
 
 	m_Window.display();
@@ -256,47 +263,15 @@ void Engine::init()
 	//	+---------------------------+
 
 	// Title screen booleans
-	m_playButtonPressed = false;
-	m_playButtonSelected = false;
-	m_exitButtonPressed = false;
-	m_exitButtonSelected = false;
+	m_playButtonClicked = false, m_exitButtonClicked = false;
 
 	// Load font from file, them assign font to Text objects
 	m_font.loadFromFile(FONT_FILE);
 
-	m_gameTitle.setFont(m_font);
-	m_playButton.setFont(m_font);
-	m_exitButton.setFont(m_font);
-	m_specialButton.setFont(m_font);
-
-		// Game Title
-		m_gameTitle.setFillColor(Color::White);
-		m_gameTitle.setString("Particles");
-		m_gameTitle.setCharacterSize(50);
-		m_gameTitle.setOrigin(m_gameTitle.getLocalBounds().width / 2, m_gameTitle.getLocalBounds().height / 2);
-		m_gameTitle.setPosition(m_Window.getSize().x / 2, m_Window.getSize().y / 2 - 150);
-
-		// Play Button
-		m_playButton.setFillColor(Color::White);
-		m_playButton.setString("Play");
-		m_playButton.setCharacterSize(25);
-		m_playButton.setOrigin(m_playButton.getLocalBounds().width / 2, m_playButton.getLocalBounds().height / 2);
-		m_playButton.setPosition(m_Window.getSize().x / 2, m_Window.getSize().y / 2 - 50);
-		
-		// Exit Button
-		m_exitButton.setFillColor(Color::White);
-		m_exitButton.setString("Exit");
-		m_exitButton.setCharacterSize(25);
-		m_exitButton.setOrigin(m_exitButton.getLocalBounds().width / 2, m_exitButton.getLocalBounds().height / 2);
-		m_exitButton.setPosition(m_Window.getSize().x / 2, m_Window.getSize().y / 2 - 25);
-
-		// Special Button
-		m_specialButton.setFillColor(Color::White);
-		m_specialButton.setString("i love computer science!");
-		m_specialButton.setCharacterSize(50);
-		m_specialButton.setOrigin(m_specialButton.getLocalBounds().width / 2, m_specialButton.getLocalBounds().height / 2);
-		m_specialButton.setPosition(m_Window.getSize().x / 2, m_Window.getSize().y / 2 - 200);
-
+	m_gameTitle.MyText::setupText(m_font, m_Window, "Particles", 50, Vector2f(0, -175));						// Game Title
+	m_playButton.MyText::setupText(m_font, m_Window, "Play", 25,Vector2f(0, -60));								// Play Button
+	m_exitButton.MyText::setupText(m_font, m_Window, "Exit", 25, Vector2f(0, -25));								// Exit Button
+	m_specialButton.MyText::setupText(m_font, m_Window, "i love computer science!", 50, Vector2f(0, -200));		// Special Button
 
 	// Volume Texture
 	if (m_volumeTextureON.loadFromFile(FILE_VOLUME_ON)) cout << "Volume on texture loaded \n";

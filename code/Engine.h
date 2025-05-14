@@ -1,9 +1,26 @@
 #pragma once
-#pragma once
 #include "Particle.h"
 #include "config.h"
 using namespace sf;
 using namespace std;
+
+class MyText : public Text
+{
+public:
+	void setupText(const Font& font, const RenderWindow& window, const std::string& str, unsigned int size, const Vector2f& offsetPos = { 0, 0 })
+	{
+		setFont(font);
+		setFillColor(Color::White);
+		setString(str);
+		setCharacterSize(size);
+
+		// Center origin
+		setOrigin(getLocalBounds().width / 2, getLocalBounds().height / 2);
+
+		// Set position with the offset
+		setPosition(window.getSize().x / 2 + offsetPos.x, window.getSize().y / 2 + offsetPos.y);
+	}
+};
 
 class Engine
 {
@@ -35,18 +52,15 @@ private:
 	Music m_music;
 	
 	// Text to create Title Screen w/ 'Play' and 'Exit' options
-	Text m_gameTitle;
-	Text m_playButton;
-	Text m_exitButton;
-	Text m_specialButton;
+	MyText m_gameTitle;
+	MyText m_playButton;
+	MyText m_exitButton;
+	MyText m_specialButton;
 	Font m_font;
 
 		// Booleans for handling menu selection
-		bool m_playButtonPressed; 
-		bool m_playButtonSelected;
-
-		bool m_exitButtonPressed;
-		bool m_exitButtonSelected;
+		bool m_playButtonClicked;	// 'Was button clicked?'
+		bool m_exitButtonClicked;
 
 	// Private functions for internal use only
 	void input();
