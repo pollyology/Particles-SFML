@@ -38,6 +38,7 @@ private:
 	Text m_gameTitle;
 	Text m_playButton;
 	Text m_exitButton;
+	Text m_specialButton;
 	Font m_font;
 
 		// Booleans for handling menu selection
