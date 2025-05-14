@@ -165,6 +165,29 @@ void Engine::input()
 			m_border.setOutlineColor(Color::Transparent);
 		}
 
+		//	+---------------------------+
+		//	|		SPECIAL BUTTON		|
+		//	+---------------------------+
+		static bool specialButtonClicked = false;
+		FloatRect buttonBounds = m_specialButton.getGlobalBounds();
+		buttonBounds.height -= 5;
+
+
+		if (buttonBounds.contains(static_cast<Vector2f>(mousePos)))
+		{
+			m_specialButton.setScale(Vector2f(1.075, 1.075));
+
+			if (mouseLeftPressed && !mouseClickPrevious)
+			{
+				specialButtonClicked = !specialButtonClicked;
+				cout << "Special button clicked. \n";
+			}
+		}
+		else
+		{
+			m_specialButton.setScale(Vector2f(1.0, 1.0));
+		}
+
 		mouseClickPrevious = mouseLeftPressed;
 	}
 }
@@ -209,9 +232,9 @@ void Engine::draw()
 		m_Window.draw(m_playButton);
 		//m_Window.draw(m_exitButton);
 	}
-
 	else
 	{
+		m_Window.draw(m_specialButton);
 		m_Window.draw(m_sprite); // Draw the sprite with the current frame
 		m_Window.draw(m_volumeUI);
 		m_Window.draw(m_border);
@@ -244,6 +267,7 @@ void Engine::init()
 	m_gameTitle.setFont(m_font);
 	m_playButton.setFont(m_font);
 	m_exitButton.setFont(m_font);
+	m_specialButton.setFont(m_font);
 
 		// Game Title
 		m_gameTitle.setFillColor(Color::White);
@@ -266,17 +290,24 @@ void Engine::init()
 		m_exitButton.setOrigin(m_exitButton.getLocalBounds().width / 2, m_exitButton.getLocalBounds().height / 2);
 		m_exitButton.setPosition(m_Window.getSize().x / 2, m_Window.getSize().y / 2 - 25);
 
+		// Special Button
+		m_specialButton.setFillColor(Color::White);
+		m_specialButton.setString("i love computer science!");
+		m_specialButton.setCharacterSize(50);
+		m_specialButton.setOrigin(m_specialButton.getLocalBounds().width / 2, m_specialButton.getLocalBounds().height / 2);
+		m_specialButton.setPosition(m_Window.getSize().x / 2, m_Window.getSize().y / 2 - 200);
+
 
 	// Volume Texture
 	if (m_volumeTextureON.loadFromFile(FILE_VOLUME_ON)) cout << "Volume on texture loaded \n";
 	if (m_volumeTextureOFF.loadFromFile(FILE_VOLUME_OFF)) cout << "Volume off texture loaded \n";
-
+	
 	Vector2f textureSize = static_cast<Vector2f>(m_volumeTextureON.getSize());
 
 	// Volume Sprite
 	m_volumeUI.setTexture(m_volumeTextureON);
 	m_volumeUI.setOrigin(textureSize / 2.0f);
-	m_volumeUI.setScale(Vector2f(1.0, 1.0));
+	m_volumeUI.setScale(Vector2f(2.0, 2.0));
 	m_volumeUI.setColor(Color::White);	// This is supposed to make the volume sprite white, but doesn't work?
 
 		// Sets padding of border from window 
@@ -285,7 +316,7 @@ void Engine::init()
 		m_volumeUI.setPosition(position);
 
 	// Volume Border
-	Vector2f borderSize = textureSize + Vector2f(padding / 2.0f, padding / 2.0f); // Aw yeah baby, centers border outline around icon
+	Vector2f borderSize = Vector2f(m_volumeUI.getLocalBounds().width + (padding + 5), m_volumeUI.getLocalBounds().height + (padding + 5)); // Aw yeah baby, centers border outline around icon
 
 	m_border.setSize(borderSize);
 	m_border.setOrigin(borderSize / 2.0f);
