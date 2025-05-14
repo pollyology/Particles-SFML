@@ -40,6 +40,11 @@ private:
 	int m_currentFrame; // Current frame number of animation
 	float m_frameTime; // Amount of time spent per frame (seconds)
 	float m_dt;       // Measure amount of elapsed time (seconds)
+	
+	// Texture and Sprite to display special cursor
+	Texture m_cursorTexture;
+	Texture m_cursorClickTexture;
+	Sprite m_cursor;
 
 	// Texture and Sprite to display volume UI
 	Texture m_volumeTextureON;
@@ -61,6 +66,7 @@ private:
 		// Booleans for handling menu selection
 		bool m_playButtonClicked;	// 'Was button clicked?'
 		bool m_exitButtonClicked;
+		bool m_specialButtonClicked;
 
 	// Private functions for internal use only
 	void input();

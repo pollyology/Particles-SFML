@@ -77,6 +77,15 @@ void Engine::input()
 		FloatRect playButtonBounds = m_playButton.getGlobalBounds();
 		FloatRect exitButtonBounds = m_exitButton.getGlobalBounds();
 
+		if (!m_playButtonClicked)
+		{
+			m_cursor.setPosition(Vector2f(mousePos));
+			if (mouseLeftPressed && !mouseClickPrevious)
+			{
+				m_cursor.setTexture(m_cursorClickTexture);
+			}
+		}
+
 		//	+---------------------------+
 		//	|		TITLE SCREEN		|
 		//	+---------------------------+
@@ -114,7 +123,6 @@ void Engine::input()
 			{
 				m_playButtonClicked = true;
 				cout << "Play button clicked \n";
-				m_music.play();
 			}
 		}
 		if (mouseLeftPressed && !mouseClickPrevious)
@@ -176,7 +184,7 @@ void Engine::input()
 		//	+---------------------------+
 		//	|		SPECIAL BUTTON		|
 		//	+---------------------------+
-		static bool specialButtonClicked = false;
+		m_specialButtonClicked = false;
 		FloatRect buttonBounds = m_specialButton.getGlobalBounds();
 		buttonBounds.height -= 5;
 
@@ -184,14 +192,19 @@ void Engine::input()
 		{
 			m_specialButton.setScale(Vector2f(1.075, 1.075));
 
-			if (mouseLeftPressed && !mouseClickPrevious)
+			if (mouseLeftPressed)
 			{
-				specialButtonClicked = !specialButtonClicked;
-				cout << "Special button clicked. \n";
+				m_specialButton.setColor(Color::Color(230, 230, 230));
+				if (!mouseClickPrevious)
+				{
+					cout << "Special button clicked. \n";
+					m_specialButtonClicked = !m_specialButtonClicked;
+				}
 			}
 		}
-		else
+		else if (!m_specialButtonClicked)
 		{
+			m_specialButton.setColor(Color::White);
 			m_specialButton.setScale(Vector2f(1.0, 1.0));
 		}
 		mouseClickPrevious = mouseLeftPressed;
@@ -200,6 +213,9 @@ void Engine::input()
 
 void Engine::update(float dtAsSeconds)
 {
+	// Start music when 'Play' selected
+	if (!m_playButtonClicked) m_music.play();	// I have no idea why this works
+
 	// Logic for updating animation and drawing frames
 	m_dt += dtAsSeconds;
 
@@ -251,6 +267,7 @@ void Engine::draw()
 
 		m_Window.draw(m_volumeUI);
 		m_Window.draw(m_border);
+		//m_Window.draw(m_cursor);
 	}
 
 	m_Window.display();
@@ -258,6 +275,14 @@ void Engine::draw()
 
 void Engine::init()
 {
+	//	+---------------------------+
+	//	|		SPECIAL CURSOR		|
+	//	+---------------------------+
+	m_cursorTexture.loadFromFile(FILE_CURSOR);				// Wand cursor
+	m_cursorClickTexture.loadFromFile(FILE_CURSOR_CLICK);	// Texture for when cursor clicked
+	m_cursor.setTexture(m_cursorTexture);
+	m_cursor.setScale(Vector2f(0.5, 0.5));
+
 	//	+---------------------------+
 	//	|		TITLE SCREEN		|
 	//	+---------------------------+
