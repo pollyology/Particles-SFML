@@ -1,9 +1,8 @@
-Additional Include Directories
-  C:\SFML\include
+Additional Include Directories:
+C:\SFML\include
 
-Additional Library Directories
-  C:\SFML\lib
+Additional Library Directories:
+C:\SFML\lib
 
-Additional Dependencies
-  Paste this before the existing text: 
-  sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-network-d.lib;sfml-audio-d.lib;
+Additional Dependencies (Paste this before the existing text): 
+sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-network-d.lib;sfml-audio-d.lib;
