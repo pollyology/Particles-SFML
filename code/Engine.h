@@ -37,6 +37,7 @@ private:
 	// Sprite to display the current animation frame
 	Sprite m_sprite;
 
+	string m_directory;  // The file directory containing the animation
 	int m_currentFrame; // Current frame number of animation
 	float m_frameTime; // Amount of time spent per frame (seconds)
 	float m_dt;       // Measure amount of elapsed time (seconds)
@@ -68,11 +69,16 @@ private:
 		bool m_exitButtonClicked;
 		bool m_specialButtonClicked;
 
+		// Special Event
+		FloatRect m_spawnBox;
+
+
 	// Private functions for internal use only
 	void input();
 	void update(float dtAsSeconds);
 	void draw();
 	void init();	// New function added to initalize SFML objects
+	void specialEvent();
 
 public:
 	// The Engine constructor

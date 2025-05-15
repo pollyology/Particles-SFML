@@ -20,7 +20,8 @@ Engine::Engine()
 		for (int i = 0; i < frameCount; i++)
 		{
 			Texture texture;
-			texture.loadFromFile("assets/animation/frame_" + std::to_string(i) + ".png");
+			m_directory = "rainbow-dash";
+			texture.loadFromFile("assets/animation/" + m_directory + "/frame_" + std::to_string(i) + ".png");
 			m_frames.push_back(texture);
 		}
 		m_sprite.setTexture(m_frames[0]);
@@ -151,6 +152,7 @@ void Engine::input()
 				int numPoints = random;
 
 				Particle particle(m_Window, numPoints, mousePos);
+				particle.setTTL(10);
 				m_particles.emplace_back(particle);
 			}
 			cout << "Current mouse click : " << mousePos.x << ", " << mousePos.y << endl;
@@ -197,6 +199,7 @@ void Engine::input()
 				m_specialButton.setColor(Color::Color(230, 230, 230));
 				if (!mouseClickPrevious)
 				{
+					specialEvent();
 					cout << "Special button clicked. \n";
 					m_specialButtonClicked = !m_specialButtonClicked;
 				}
@@ -226,6 +229,8 @@ void Engine::update(float dtAsSeconds)
 		m_sprite.setTexture(m_frames[m_currentFrame]);			// Updates sprite texture to draw current frame
 	}
 
+	FloatRect killbox(0, m_Window.getSize().y, m_Window.getSize().x, 100);
+
 	// Logic for updating particles and TTL
 	for (auto it = m_particles.begin(); it != m_particles.end();)
 	{
@@ -233,6 +238,10 @@ void Engine::update(float dtAsSeconds)
 		{
 			it->update(dtAsSeconds);
 			it++;
+		}
+		else if (it->getPosition().y > killbox.top)
+		{
+			it = m_particles.erase(it);
 		}
 		else
 		{
@@ -324,4 +333,33 @@ void Engine::init()
 	m_border.setFillColor(Color::Transparent);
 	m_border.setOutlineColor(Color::White);
 	m_border.setOutlineThickness(2.0f);
+}
+
+void Engine::specialEvent()
+{
+	m_spawnBox = FloatRect(0, -5, m_Window.getSize().x, 5);
+	int min = 8;
+	int max = 15;
+	int numParticles = 7;
+	
+	int random = rand() % (max - min + 1) + min;
+	if (random % 2 == 0) { random++; } // Ensures random number is odd, even numbers create 'floppy' shapes
+	int numPoints = random;
+
+	if (!m_specialButtonClicked)
+	{
+		for (int i = 0; i < numParticles; i++)
+		{
+			float x = m_spawnBox.left + static_cast<float>(rand()) / RAND_MAX * m_spawnBox.width;
+			float y = m_spawnBox.top + static_cast<float>(rand()) / RAND_MAX * m_spawnBox.height;
+			Vector2i randomPos(static_cast<int>(x), static_cast<int>(y));
+
+			Particle particle(m_Window, numPoints, randomPos);
+			particle.setVelocityX(0), particle.setVelocityY(5);
+			particle.setTTL(5);
+			particle.setFade(50);
+			m_particles.emplace_back(particle);
+		}
+	}
+	//cout << "Exited special event. \n";
 }

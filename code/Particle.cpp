@@ -4,7 +4,7 @@
 // |	PUBLIC FUNCTIONS	|
 // +========================+
 Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition)
-    : m_A(2, numPoints), m_ttl(TTL), m_numPoints(numPoints)
+    : m_A(2, numPoints), m_ttl(TTL), m_numPoints(numPoints), m_fadeRate(250)
 {
     float randFraction = (float)rand() / RAND_MAX;  // create fraction between 0-1
     m_radiansPerSec = randFraction * M_PI;
@@ -72,12 +72,12 @@ void Particle::draw(RenderTarget& target, RenderStates states) const
 void Particle::update(float dt)
 {
     // Bigger number = particle fades faster
-    int fadeRate = 250 * dt; 
+    int fadeRate = m_fadeRate * dt;
 
     // Lowers the alpha value (opacity) smoothly
     m_color1.a = max(static_cast<int>(m_color1.a - fadeRate), 0);
     m_color2.a = max(static_cast<int>(m_color2.a - fadeRate), 0);
-    
+
     // Updates the particle drawing with current opacity
     m_lines[0].color = m_color1;
     for (int j = 1; j <= m_numPoints; j++)

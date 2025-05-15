@@ -15,7 +15,13 @@ public:
 	Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosition);
 	virtual void draw(RenderTarget& target, RenderStates states) const override;
     void update(float dt);
+    void setVelocityX(float velocX) { m_vx = velocX; }
+    void setVelocityY(float velocY) { m_vy = velocY; }
+    void setTTL(float ttl) { m_ttl = ttl; }
+    void setFade(int fadeRate) { m_fadeRate; }
     float getTTL() { return m_ttl; }
+    Vector2f getPosition() { return m_centerCoordinate; }
+
 
     //Functions for unit testing
     bool almostEqual(double a, double b, double eps = 0.0001);
@@ -33,6 +39,7 @@ private:
     Color m_color2;         // Outline color
     Matrix m_A;
     mutable VertexArray m_lines;
+    int m_fadeRate;
 
     ///rotate Particle by theta radians counter-clockwise
     ///construct a RotationMatrix R, left mulitply it to m_A
