@@ -15,7 +15,9 @@ std::string const FONT_FILE = "assets/fonts/Celsius Flower.ttf";
 std::string const FILE_MUSIC = "assets/music/MLP_Extended.flac";
 
 // Sprites
-std::string const FILE_CURSOR = "assets/images/Wand_Cursor.png";
-std::string const FILE_CURSOR_CLICK = "assets/images/Wand_Cursor_Click.png";
 std::string const FILE_VOLUME_ON = "assets/images/Volume_On.png";
 std::string const FILE_VOLUME_OFF = "assets/images/Volume_Mute.png";
+
+// File Paths
+std::string const RAINBOW_DASH = "/rainbow-dash";
+std::string const FLUTTERSHY = "/fluttershy";

@@ -1,9 +1,5 @@
 #include "Engine.h"
 
-// SPRITE PATHS
-std::string const RAINBOW_DASH = "rainbow-dash";
-std::string const FLUTTERSHY = "fluttershy";
-
 Engine::Engine()
 {
 	VideoMode WINDOW_MODE(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -26,7 +22,7 @@ Engine::Engine()
 		Color(253, 175, 192, 155),						// Fluttershy Pink
 		Vector2f(1.0, 1.0),								// Set scale
 		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),	// Set position
-		Vector2f(0, 0),									// Set offset of x,y
+		Vector2f(-5, 10),								// Set offset of x,y from center
 		103												// Set number of frames
 	};
 
@@ -63,7 +59,7 @@ void Engine::loadAnimation(const CharacterSettings& settings)
 	for (int i = 0; i < frameCount; i++)
 	{
 		Texture texture;
-		texture.loadFromFile("assets/animation/" + m_directory + "/frame_" + std::to_string(i) + ".png");
+		texture.loadFromFile("assets/animation" + m_directory + "/frame_" + std::to_string(i) + ".png");
 		m_frames.push_back(texture);
 	}
 
@@ -118,29 +114,55 @@ void Engine::input()
 	while (m_Window.pollEvent(event))
 	{
 		Vector2i mousePos(Mouse::getPosition(m_Window)); // Gets mouse position relative to window size
+		FloatRect playButtonBounds = m_playButton.getGlobalBounds();
+		FloatRect exitButtonBounds = m_exitButton.getGlobalBounds();
 
+		//	+---------------------------+
+		//	|		TITLE SCREEN		|
+		//	+---------------------------+
 		if (event.type == Event::Closed || event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
 		{
 			m_Window.close();
 		}
 
-		m_playButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
-		m_exitButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
-		m_specialButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
-
-		//	+---------------------------+
-		//	|		TITLE SCREEN		|
-		//	+---------------------------+
-		if (m_playButton.isClicked())
+		// === Button Hover ===
+		if (event.type == Event::MouseMoved)
 		{
-			m_playButtonClicked = true;
-			cout << "Play button clicked \n";
+
+			if (playButtonBounds.contains(static_cast<Vector2f>(mousePos)))
+			{
+				m_playButton.setColor(Color::Yellow);
+				m_playButton.setScale(Vector2f(1.075, 1.075));
+			}
+			else if (exitButtonBounds.contains(static_cast<Vector2f>(mousePos)))
+			{
+				m_exitButton.setColor(Color::Yellow);
+				m_exitButton.setScale(Vector2f(1.075, 1.075));
+			}
+			else
+			{
+				m_playButton.setColor(Color::White);
+				m_playButton.setScale(Vector2f(1.0, 1.0));
+				m_exitButton.setColor(Color::White);
+				m_exitButton.setScale(Vector2f(1.0, 1.0));
+			}
 		}
-
-		if (m_exitButton.isClicked())
+		// === Button Click ===
+		if (mouseLeftPressed && !mouseClickPrevious)
 		{
-			m_exitButtonClicked = true;
-			m_Window.close();
+			if (playButtonBounds.contains(static_cast<Vector2f>(mousePos)))
+			{
+				m_playButtonClicked = true;
+				cout << "Play button clicked \n";
+			}
+		}
+		if (mouseLeftPressed && !mouseClickPrevious)
+		{
+			if (exitButtonBounds.contains(static_cast<Vector2f>(mousePos)))
+			{
+				m_exitButtonClicked = true;
+				m_Window.close();
+			}
 		}
 
 		//	+---------------------------+
@@ -160,11 +182,11 @@ void Engine::input()
 				int numPoints = random;
 
 				Particle particle(m_Window, numPoints, mousePos);
-				particle.setTTL(1.5);
+				particle.setTTL(10);
 				m_particles.emplace_back(particle);
 			}
-			//cout << "Current mouse click : " << mousePos.x << ", " << mousePos.y << endl;
-			//cout << "Patricle count: " << m_particles.size() << endl;
+			cout << "Current mouse click : " << mousePos.x << ", " << mousePos.y << endl;
+			cout << "Patricle count: " << m_particles.size() << endl;
 		}
 
 		//	+---------------------------+
@@ -194,17 +216,32 @@ void Engine::input()
 		//	+---------------------------+
 		//	|		SPECIAL BUTTON		|
 		//	+---------------------------+
-		if (m_specialButton.isClicked());
-		{
-			specialEvent();
-			changeCharacter();
-			cout << "Special button clicked \n";
-		}
+		m_specialButtonClicked = false;
+		FloatRect buttonBounds = m_specialButton.getGlobalBounds();
+		buttonBounds.height -= 5;
 
-		//	+---------------------------+
-		//	|		CHANGE CHARACTER	|
-		//	+---------------------------+
-		mouseClickPrevious = mouseLeftPressed;	// Keep this at end of input loop
+		if (buttonBounds.contains(static_cast<Vector2f>(mousePos)) && !mouseClickPrevious)
+		{
+			m_specialButton.setScale(Vector2f(1.075, 1.075));
+
+			if (mouseLeftPressed)
+			{
+				m_specialButton.setColor(Color::Color(230, 230, 230));
+				if (!mouseClickPrevious)
+				{
+					specialEvent();
+					changeCharacter();
+					cout << "Special button clicked. \n";
+					m_specialButtonClicked = !m_specialButtonClicked;
+				}
+			}
+		}
+		else if (!m_specialButtonClicked)
+		{
+			m_specialButton.setColor(Color::White);
+			m_specialButton.setScale(Vector2f(1.0, 1.0));
+		}
+		mouseClickPrevious = mouseLeftPressed;
 	}
 }
 
