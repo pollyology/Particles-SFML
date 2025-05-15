@@ -17,8 +17,11 @@ public:
     void update(float dt);
     void setVelocityX(float velocX) { m_vx = velocX; }
     void setVelocityY(float velocY) { m_vy = velocY; }
-    void setTTL(float ttl) { m_ttl = ttl; }
-    void setFade(int fadeRate) { m_fadeRate; }
+    void setTTL(float ttl)
+    {
+        m_ttl = ttl; 
+        m_initialTTL = ttl;
+    }
     float getTTL() { return m_ttl; }
     Vector2f getPosition() { return m_centerCoordinate; }
 
@@ -29,6 +32,7 @@ public:
 
 private:
     float m_ttl;
+    float m_initialTTL;
     int m_numPoints;
 	Vector2f m_centerCoordinate;
     float m_radiansPerSec;
@@ -39,7 +43,6 @@ private:
     Color m_color2;         // Outline color
     Matrix m_A;
     mutable VertexArray m_lines;
-    int m_fadeRate;
 
     ///rotate Particle by theta radians counter-clockwise
     ///construct a RotationMatrix R, left mulitply it to m_A

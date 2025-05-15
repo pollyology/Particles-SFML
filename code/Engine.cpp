@@ -1,5 +1,9 @@
 #include "Engine.h"
 
+// SPRITE PATHS
+std::string const RAINBOW_DASH = "rainbow-dash";
+std::string const FLUTTERSHY = "fluttershy";
+
 Engine::Engine()
 {
 	VideoMode WINDOW_MODE(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -9,34 +13,73 @@ Engine::Engine()
 	//	+---------------------------+
 	//	|	MUSIC INITIALIZATION	|
 	//	+---------------------------+
-		if (m_music.openFromFile(FILE_MUSIC)) cout << "Music file loaded \n";
-		m_music.setLoop(true);
-		m_music.setVolume(25);
+	if (m_music.openFromFile(FILE_MUSIC)) cout << "Music file loaded \n";
+	m_music.setLoop(true);
+	m_music.setVolume(25);
+
+	//	+-------------------------------+
+	//	|		CHARACTER SETTINGS		|
+	//	+-------------------------------+
+	m_characterMap[FLUTTERSHY] =
+	{
+		FLUTTERSHY,										// Set character/folder name
+		Color(253, 175, 192, 155),						// Fluttershy Pink
+		Vector2f(1.0, 1.0),								// Set scale
+		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),	// Set position
+		Vector2f(0, 0),									// Set offset of x,y
+		103												// Set number of frames
+	};
+
+	m_characterMap[RAINBOW_DASH] =
+	{
+		RAINBOW_DASH,
+		Color(154, 218, 248, 155),						// Background color (Rainbow Dash Blue lol)
+		Vector2f(0.5, 0.5),
+		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
+		Vector2f(-75, 0),
+		27
+	};
 
 	//	+-------------------------------+
 	//	|		ANIMATION HANDLING		|
 	//	+-------------------------------+
-		int frameCount = 27; // Manually set this to number of total frames in animation folder
-		for (int i = 0; i < frameCount; i++)
-		{
-			Texture texture;
-			m_directory = "rainbow-dash";
-			texture.loadFromFile("assets/animation/" + m_directory + "/frame_" + std::to_string(i) + ".png");
-			m_frames.push_back(texture);
-		}
-		m_sprite.setTexture(m_frames[0]);
-		m_sprite.setScale(Vector2f(0.5, 0.5)); // Tweak to adjust sprite size
-		m_sprite.setOrigin(m_sprite.getLocalBounds().width / 2, m_sprite.getLocalBounds().height / 2);
-		m_sprite.setPosition(m_Window.getSize().x / 2 - 75, m_Window.getSize().y / 2);
-
-		m_currentFrame = 0;
-		m_frameTime = 0.025f; // Tweak to adjust animation speed, smaller = faster
-		m_dt = 0;
+		m_currentCharacter = RAINBOW_DASH;
+		loadAnimation(m_characterMap[m_currentCharacter]); // Load default animation (Rainbow Dash)
 
 	//	+-------------------------------+
 	//	|		UI INITIALIZATION		|
 	//	+-------------------------------+
 		init();
+}
+
+void Engine::loadAnimation(const CharacterSettings& settings)
+{
+	m_frames.clear();
+	m_directory = settings.name;
+
+	// Load Animation
+	int frameCount = settings.frameCount; // Sets number to character's frame count setting
+
+	for (int i = 0; i < frameCount; i++)
+	{
+		Texture texture;
+		texture.loadFromFile("assets/animation/" + m_directory + "/frame_" + std::to_string(i) + ".png");
+		m_frames.push_back(texture);
+	}
+
+	// Sprite Settings
+	m_sprite = Sprite(m_frames[0]);
+	m_sprite.setScale(settings.scale); // Tweak to adjust sprite size
+		
+		// Set origin and position
+		FloatRect bounds = m_sprite.getLocalBounds();
+		m_sprite.setOrigin(bounds.width / 2, bounds.height / 2);
+		m_sprite.setPosition(settings.position + settings.offset);
+
+	// Animation Settings
+	m_currentFrame = 0;
+	m_frameTime = 0.025f; // Tweak to adjust animation speed, smaller = faster
+	m_dt = 0;
 }
 
 void Engine::run()
@@ -75,64 +118,29 @@ void Engine::input()
 	while (m_Window.pollEvent(event))
 	{
 		Vector2i mousePos(Mouse::getPosition(m_Window)); // Gets mouse position relative to window size
-		FloatRect playButtonBounds = m_playButton.getGlobalBounds();
-		FloatRect exitButtonBounds = m_exitButton.getGlobalBounds();
 
-		if (!m_playButtonClicked)
-		{
-			m_cursor.setPosition(Vector2f(mousePos));
-			if (mouseLeftPressed && !mouseClickPrevious)
-			{
-				m_cursor.setTexture(m_cursorClickTexture);
-			}
-		}
-
-		//	+---------------------------+
-		//	|		TITLE SCREEN		|
-		//	+---------------------------+
 		if (event.type == Event::Closed || event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
 		{
 			m_Window.close();
 		}
 
-		// === Button Hover ===
-		if (event.type == Event::MouseMoved)
-		{
+		m_playButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
+		m_exitButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
+		m_specialButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
 
-				if (playButtonBounds.contains(static_cast<Vector2f>(mousePos)))
-				{
-					m_playButton.setColor(Color::Yellow);
-					m_playButton.setScale(Vector2f(1.075, 1.075));
-				}
-				else if (exitButtonBounds.contains(static_cast<Vector2f>(mousePos)))
-				{
-					m_exitButton.setColor(Color::Yellow);
-					m_exitButton.setScale(Vector2f(1.075, 1.075));
-				}
-				else
-				{
-					m_playButton.setColor(Color::White);
-					m_playButton.setScale(Vector2f(1.0, 1.0));
-					m_exitButton.setColor(Color::White);
-					m_exitButton.setScale(Vector2f(1.0, 1.0));
-				}
-		}
-		// === Button Click ===
-		if (mouseLeftPressed && !mouseClickPrevious)
+		//	+---------------------------+
+		//	|		TITLE SCREEN		|
+		//	+---------------------------+
+		if (m_playButton.isClicked())
 		{
-			if (playButtonBounds.contains(static_cast<Vector2f>(mousePos)))
-			{
-				m_playButtonClicked = true;
-				cout << "Play button clicked \n";
-			}
+			m_playButtonClicked = true;
+			cout << "Play button clicked \n";
 		}
-		if (mouseLeftPressed && !mouseClickPrevious)
+
+		if (m_exitButton.isClicked())
 		{
-			if (exitButtonBounds.contains(static_cast<Vector2f>(mousePos)))
-			{
-				m_exitButtonClicked = true;
-				m_Window.close();
-			}
+			m_exitButtonClicked = true;
+			m_Window.close();
 		}
 
 		//	+---------------------------+
@@ -152,11 +160,11 @@ void Engine::input()
 				int numPoints = random;
 
 				Particle particle(m_Window, numPoints, mousePos);
-				particle.setTTL(10);
+				particle.setTTL(1.5);
 				m_particles.emplace_back(particle);
 			}
-			cout << "Current mouse click : " << mousePos.x << ", " << mousePos.y << endl;
-			cout << "Patricle count: " << m_particles.size() << endl;
+			//cout << "Current mouse click : " << mousePos.x << ", " << mousePos.y << endl;
+			//cout << "Patricle count: " << m_particles.size() << endl;
 		}
 
 		//	+---------------------------+
@@ -186,31 +194,17 @@ void Engine::input()
 		//	+---------------------------+
 		//	|		SPECIAL BUTTON		|
 		//	+---------------------------+
-		m_specialButtonClicked = false;
-		FloatRect buttonBounds = m_specialButton.getGlobalBounds();
-		buttonBounds.height -= 5;
-
-		if (buttonBounds.contains(static_cast<Vector2f>(mousePos)) && !mouseClickPrevious)
+		if (m_specialButton.isClicked());
 		{
-			m_specialButton.setScale(Vector2f(1.075, 1.075));
+			specialEvent();
+			changeCharacter();
+			cout << "Special button clicked \n";
+		}
 
-			if (mouseLeftPressed)
-			{
-				m_specialButton.setColor(Color::Color(230, 230, 230));
-				if (!mouseClickPrevious)
-				{
-					specialEvent();
-					cout << "Special button clicked. \n";
-					m_specialButtonClicked = !m_specialButtonClicked;
-				}
-			}
-		}
-		else if (!m_specialButtonClicked)
-		{
-			m_specialButton.setColor(Color::White);
-			m_specialButton.setScale(Vector2f(1.0, 1.0));
-		}
-		mouseClickPrevious = mouseLeftPressed;
+		//	+---------------------------+
+		//	|		CHANGE CHARACTER	|
+		//	+---------------------------+
+		mouseClickPrevious = mouseLeftPressed;	// Keep this at end of input loop
 	}
 }
 
@@ -253,7 +247,8 @@ void Engine::update(float dtAsSeconds)
 void Engine::draw()
 {
 	// Drawing
-	Color color(154, 218, 248, 155); // Background color (Rainbow Dash Blue lol)
+	const auto& settings = m_characterMap[m_currentCharacter];
+	Color color = settings.backgroundColor;
 
 	m_Window.clear(color);
 
@@ -285,14 +280,6 @@ void Engine::draw()
 void Engine::init()
 {
 	//	+---------------------------+
-	//	|		SPECIAL CURSOR		|
-	//	+---------------------------+
-	m_cursorTexture.loadFromFile(FILE_CURSOR);				// Wand cursor
-	m_cursorClickTexture.loadFromFile(FILE_CURSOR_CLICK);	// Texture for when cursor clicked
-	m_cursor.setTexture(m_cursorTexture);
-	m_cursor.setScale(Vector2f(0.5, 0.5));
-
-	//	+---------------------------+
 	//	|		TITLE SCREEN		|
 	//	+---------------------------+
 
@@ -302,10 +289,10 @@ void Engine::init()
 	// Load font from file, them assign font to Text objects
 	m_font.loadFromFile(FONT_FILE);
 
-	m_gameTitle.MyText::setupText(m_font, m_Window, "Particles", 50, Vector2f(0, -175));						// Game Title
-	m_playButton.MyText::setupText(m_font, m_Window, "Play", 25,Vector2f(0, -60));								// Play Button
-	m_exitButton.MyText::setupText(m_font, m_Window, "Exit", 25, Vector2f(0, -25));								// Exit Button
-	m_specialButton.MyText::setupText(m_font, m_Window, "i love computer science!", 50, Vector2f(0, -200));		// Special Button
+	m_gameTitle.Button::setup(m_font, m_Window, "Particles", 50, Vector2f(0, -175));						// Game Title
+	m_playButton.Button::setup(m_font, m_Window, "Play", 25,Vector2f(0, -60));								// Play Button
+	m_exitButton.Button::setup(m_font, m_Window, "Exit", 25, Vector2f(0, -25));								// Exit Button
+	m_specialButton.Button::setup(m_font, m_Window, "i love computer science!", 50, Vector2f(0, -200));		// Special Button
 
 	// Volume Texture
 	if (m_volumeTextureON.loadFromFile(FILE_VOLUME_ON)) cout << "Volume on texture loaded \n";
@@ -337,17 +324,15 @@ void Engine::init()
 
 void Engine::specialEvent()
 {
-	m_spawnBox = FloatRect(0, -5, m_Window.getSize().x, 5);
+	m_spawnBox = FloatRect(0, -50, m_Window.getSize().x, 5);	// left, top, width, height
 	int min = 8;
 	int max = 15;
-	int numParticles = 7;
+	int numParticles = rand() % 10 + 7;
 	
 	int random = rand() % (max - min + 1) + min;
 	if (random % 2 == 0) { random++; } // Ensures random number is odd, even numbers create 'floppy' shapes
 	int numPoints = random;
 
-	if (!m_specialButtonClicked)
-	{
 		for (int i = 0; i < numParticles; i++)
 		{
 			float x = m_spawnBox.left + static_cast<float>(rand()) / RAND_MAX * m_spawnBox.width;
@@ -355,11 +340,31 @@ void Engine::specialEvent()
 			Vector2i randomPos(static_cast<int>(x), static_cast<int>(y));
 
 			Particle particle(m_Window, numPoints, randomPos);
-			particle.setVelocityX(0), particle.setVelocityY(5);
-			particle.setTTL(5);
-			particle.setFade(50);
+
+			// Setting physics for special particles
+			const float vx = 1.0f; 
+			const float vy = 5.0f;
+			float ttl = 3.0f + static_cast<float>(rand()) / RAND_MAX * 3.0f; // Between 3 and 6
+
+			particle.setVelocityX(vx);
+			particle.setVelocityY(vy);
+			particle.setTTL(ttl);
+
 			m_particles.emplace_back(particle);
 		}
-	}
+
 	//cout << "Exited special event. \n";
 }
+
+void Engine::changeCharacter()
+{
+//	+---------------------------+
+//	|		CHANGE CHARACTER	|
+//	+---------------------------+
+	if (m_currentCharacter == RAINBOW_DASH) m_currentCharacter = FLUTTERSHY;
+	else m_currentCharacter = RAINBOW_DASH;
+
+	loadAnimation(m_characterMap[m_currentCharacter]);
+}
+
+

@@ -1,25 +1,18 @@
 #pragma once
 #include "Particle.h"
 #include "config.h"
+#include "Button.h"
 using namespace sf;
 using namespace std;
 
-class MyText : public Text
+struct CharacterSettings
 {
-public:
-	void setupText(const Font& font, const RenderWindow& window, const std::string& str, unsigned int size, const Vector2f& offsetPos = { 0, 0 })
-	{
-		setFont(font);
-		setFillColor(Color::White);
-		setString(str);
-		setCharacterSize(size);
-
-		// Center origin
-		setOrigin(getLocalBounds().width / 2, getLocalBounds().height / 2);
-
-		// Set position with the offset
-		setPosition(window.getSize().x / 2 + offsetPos.x, window.getSize().y / 2 + offsetPos.y);
-	}
+	string name;			// Character/folder name
+	Color backgroundColor;	// Character color
+	Vector2f scale;			// Custom scale
+	Vector2f position;		// Custom position
+	Vector2f offset;		// Offset from origin
+	int frameCount;			// Number of frames
 };
 
 class Engine
@@ -36,17 +29,15 @@ private:
 
 	// Sprite to display the current animation frame
 	Sprite m_sprite;
+	string m_currentCharacter;
+	map<string, CharacterSettings> m_characterMap;
 
-	string m_directory;  // The file directory containing the animation
+	string m_directory;	  // The file directory containing the animation
+	int m_frameCount;	 // Number of total frames in animation
 	int m_currentFrame; // Current frame number of animation
 	float m_frameTime; // Amount of time spent per frame (seconds)
 	float m_dt;       // Measure amount of elapsed time (seconds)
 	
-	// Texture and Sprite to display special cursor
-	Texture m_cursorTexture;
-	Texture m_cursorClickTexture;
-	Sprite m_cursor;
-
 	// Texture and Sprite to display volume UI
 	Texture m_volumeTextureON;
 	Texture m_volumeTextureOFF;
@@ -58,16 +49,15 @@ private:
 	Music m_music;
 	
 	// Text to create Title Screen w/ 'Play' and 'Exit' options
-	MyText m_gameTitle;
-	MyText m_playButton;
-	MyText m_exitButton;
-	MyText m_specialButton;
+	Button m_gameTitle;
+	Button m_playButton;
+	Button m_exitButton;
+	Button m_specialButton;
 	Font m_font;
 
 		// Booleans for handling menu selection
 		bool m_playButtonClicked;	// 'Was button clicked?'
 		bool m_exitButtonClicked;
-		bool m_specialButtonClicked;
 
 		// Special Event
 		FloatRect m_spawnBox;
@@ -77,8 +67,12 @@ private:
 	void input();
 	void update(float dtAsSeconds);
 	void draw();
-	void init();	// New function added to initalize SFML objects
-	void specialEvent();
+
+		// New functions added to initalize SFML objects
+		void init();
+		void specialEvent();
+		void changeCharacter();
+		void loadAnimation(const CharacterSettings& settings);
 
 public:
 	// The Engine constructor
