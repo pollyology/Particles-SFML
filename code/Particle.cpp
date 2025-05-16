@@ -18,6 +18,31 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosit
     m_vx = (rand() % 2 == 0) ? m_vx : m_vx * -1; // Randomizes m_vx to be positive or negative
 
     // === Intialize color selection, feel free to change ===
+    
+    /*CODE ADDED 5/15/2025 5:42PM*/
+    /*enum { RED, BLUE, TRANS, YELLOW, WHITE, CYAN, MAGENTA, GREEN }ParticleColors;
+    int randInt = rand() % 4 + RED;
+    switch (randInt) 
+    {
+        case RED: {m_color1 = Color::Red; break; }
+        case BLUE: {m_color1 = Color::Blue; break; }
+        case TRANS: {m_color1 = Color::Transparent; break; }
+        case YELLOW: {m_color1 = Color::Yellow; break; }
+        default: {m_color1 = Color::White; }
+    }
+    randInt = rand() % 4 + WHITE;
+    switch (randInt)
+    {
+        case WHITE: {m_color2 = Color::White; break; }
+        case CYAN: {m_color2 = Color::Cyan; break; }
+        case MAGENTA: {m_color2 = Color::Magenta; break; }
+        case GREEN: {m_color2 = Color::Green; break; }
+        default: {m_color2 = Color::Black; }
+    }
+    */
+    /*END CODE ADDED 5/15/2025 5:42PM*/
+
+    //Original Color Scheme
     m_color1 = Color::Red;  
     m_color2 = Color::Blue;
 
