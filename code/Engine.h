@@ -70,6 +70,7 @@ private:
 	Button m_playButton;
 	Button m_exitButton;
 	Button m_specialButton;
+	Button m_characterButton;
 	Font m_font;
 
 		// Booleans for handling menu selection
