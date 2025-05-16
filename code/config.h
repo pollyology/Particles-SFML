@@ -22,3 +22,4 @@ std::string const FILE_VOLUME_OFF = "assets/images/Volume_Mute.png";
 // File Paths
 std::string const RAINBOW_DASH = "/rainbow-dash";
 std::string const FLUTTERSHY = "/fluttershy";
+std::string const PINKIE_PIE = "/pinkie-pie";

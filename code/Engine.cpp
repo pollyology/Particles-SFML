@@ -18,7 +18,8 @@ Engine::Engine()
 	//	+-------------------------------+
 	m_characterMap[FLUTTERSHY] =
 	{
-		FLUTTERSHY,										// Set character/folder name
+		"Fluttershy",									// Set character name
+		FLUTTERSHY,										// Set file path
 		Color(253, 175, 192, 155),						// Fluttershy Pink
 		Vector2f(1.0, 1.0),								// Set scale
 		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),	// Set position
@@ -28,6 +29,7 @@ Engine::Engine()
 
 	m_characterMap[RAINBOW_DASH] =
 	{
+		"Rainbow Dash",
 		RAINBOW_DASH,
 		Color(154, 218, 248, 155),						// Background color (Rainbow Dash Blue lol)
 		Vector2f(0.5, 0.5),
@@ -35,6 +37,19 @@ Engine::Engine()
 		Vector2f(-75, 0),
 		27
 	};
+
+	/*
+	m_characterMap[PINKIE_PIE] =
+	{
+		"Pinkie Pie",
+		PINKIE_PIE,
+		Color(239, 79, 145, 155),
+		Vector2f(0.5, 0.5),
+		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
+		Vector2f(0, 0),
+		9
+	};
+	*/
 
 	//	+-------------------------------+
 	//	|		ANIMATION HANDLING		|
@@ -51,7 +66,7 @@ Engine::Engine()
 void Engine::loadAnimation(const CharacterSettings& settings)
 {
 	m_frames.clear();
-	m_directory = settings.name;
+	m_directory = settings.filename;
 
 	// Load Animation
 	int frameCount = settings.frameCount; // Sets number to character's frame count setting
@@ -232,7 +247,7 @@ void Engine::update(float dtAsSeconds)
 		m_sprite.setTexture(m_frames[m_currentFrame]);			// Updates sprite texture to draw current frame
 	}
 
-	FloatRect killbox(0, m_Window.getSize().y, m_Window.getSize().x, 100);
+	FloatRect killbox(0, m_Window.getSize().y, m_Window.getSize().x, 100); // Despawn particles that fall off-screen
 
 	// Logic for updating particles and TTL
 	for (auto it = m_particles.begin(); it != m_particles.end();)
@@ -377,6 +392,7 @@ void Engine::changeCharacter()
 	else m_currentCharacter = RAINBOW_DASH;
 
 	loadAnimation(m_characterMap[m_currentCharacter]);
+	cout << "Changed character to " << m_characterMap[m_currentCharacter].name << endl;
 }
 
 

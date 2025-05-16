@@ -7,7 +7,8 @@ using namespace std;
 
 struct CharacterSettings
 {
-	string name;			// Character/folder name
+	string name;			// Character name
+	string filename;		// Folder name
 	Color backgroundColor;	// Character color
 	Vector2f scale;			// Custom scale
 	Vector2f position;		// Custom position
