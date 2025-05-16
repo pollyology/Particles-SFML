@@ -148,15 +148,16 @@ void Engine::input()
 			}
 		}
 		// === Button Click ===
-		if (mouseLeftPressed && !mouseClickPrevious)
+		if (!m_playButtonClicked && mouseLeftPressed && !mouseClickPrevious)
 		{
 			if (playButtonBounds.contains(static_cast<Vector2f>(mousePos)))
 			{
 				m_playButtonClicked = true;
+				m_particles.clear();
 				cout << "Play button clicked \n";
 			}
 		}
-		if (mouseLeftPressed && !mouseClickPrevious)
+		if (mouseLeftPressed && !mouseClickPrevious && !m_playButtonClicked)
 		{
 			if (exitButtonBounds.contains(static_cast<Vector2f>(mousePos)))
 			{
@@ -168,7 +169,7 @@ void Engine::input()
 		//	+---------------------------+
 		//	|		PARTICLES LOGIC		|
 		//	+---------------------------+
-		if (mouseLeftPressed)
+		if (mouseLeftPressed && m_playButtonClicked)
 		{
 			if (mouseClickPrevious)	// If holding click, limit particles made per frame
 			{
@@ -182,11 +183,11 @@ void Engine::input()
 				int numPoints = random;
 
 				Particle particle(m_Window, numPoints, mousePos);
-				particle.setTTL(10);
+				particle.setTTL(1.75);
 				m_particles.emplace_back(particle);
 			}
-			cout << "Current mouse click : " << mousePos.x << ", " << mousePos.y << endl;
-			cout << "Patricle count: " << m_particles.size() << endl;
+			//cout << "Current mouse click : " << mousePos.x << ", " << mousePos.y << endl;
+			//cout << "Patricle count: " << m_particles.size() << endl;
 		}
 
 		//	+---------------------------+
@@ -229,8 +230,11 @@ void Engine::input()
 				m_specialButton.setColor(Color::Color(230, 230, 230));
 				if (!mouseClickPrevious)
 				{
-					specialEvent();
-					changeCharacter();
+					int random = rand() % (2 - 1 + 1) + 1;
+					for (int i = 0; i < random; i++)
+					{
+						specialEvent();
+					}
 					cout << "Special button clicked. \n";
 					m_specialButtonClicked = !m_specialButtonClicked;
 				}
@@ -240,6 +244,33 @@ void Engine::input()
 		{
 			m_specialButton.setColor(Color::White);
 			m_specialButton.setScale(Vector2f(1.0, 1.0));
+		}
+		//	+---------------------------+
+		//	|		CHANGE CHARACTER	|
+		//	+---------------------------+
+		static bool isCharacterButtonClicked = false;
+		FloatRect characterButtonBounds = m_characterButton.getGlobalBounds();
+
+		if (characterButtonBounds.contains(static_cast<Vector2f>(mousePos)) && !mouseClickPrevious)
+		{
+			m_characterButton.setScale(Vector2f(1.075, 1.075));
+			m_characterButton.setColor(Color::Yellow);
+
+			if (mouseLeftPressed)
+			{
+				m_characterButton.setColor(Color::Color(230, 230, 230));
+				if (!mouseClickPrevious)
+				{
+					changeCharacter();
+					cout << "Change character button clicked. \n";
+					isCharacterButtonClicked = !isCharacterButtonClicked;
+				}
+			}
+		}
+		else if (!isCharacterButtonClicked)
+		{
+			m_characterButton.setColor(Color::White);
+			m_characterButton.setScale(Vector2f(1.0, 1.0));
 		}
 		mouseClickPrevious = mouseLeftPressed;
 	}
@@ -299,6 +330,7 @@ void Engine::draw()
 	{
 		m_Window.draw(m_sprite); // Draw the sprite with the current frame
 		m_Window.draw(m_specialButton);
+		m_Window.draw(m_characterButton);
 
 		// Draw particles
 		for (auto& particle : m_particles)
@@ -326,10 +358,12 @@ void Engine::init()
 	// Load font from file, them assign font to Text objects
 	m_font.loadFromFile(FONT_FILE);
 
-	m_gameTitle.Button::setup(m_font, m_Window, "Particles", 50, Vector2f(0, -175));						// Game Title
-	m_playButton.Button::setup(m_font, m_Window, "Play", 25,Vector2f(0, -60));								// Play Button
-	m_exitButton.Button::setup(m_font, m_Window, "Exit", 25, Vector2f(0, -25));								// Exit Button
-	m_specialButton.Button::setup(m_font, m_Window, "i love computer science!", 50, Vector2f(0, -200));		// Special Button
+	m_gameTitle.Button::setup(m_font, m_Window, "Particles", 50, Vector2f(0, -175));										// Game Title
+	m_playButton.Button::setup(m_font, m_Window, "Play", 25,Vector2f(0, -60));												// Play Button
+	m_exitButton.Button::setup(m_font, m_Window, "Exit", 25, Vector2f(0, -25));												// Exit Button
+	m_specialButton.Button::setup(m_font, m_Window, "i love computer science!", 50, Vector2f(0, -200));						// Special Button
+	m_characterButton.Button::setup(m_font, m_Window, "change character?", 22, Vector2f(-385, 245)); // Change Character Button
+
 
 	// Volume Texture
 	if (m_volumeTextureON.loadFromFile(FILE_VOLUME_ON)) cout << "Volume on texture loaded \n";
