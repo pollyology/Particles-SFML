@@ -9,7 +9,7 @@ Engine::Engine()
 	//	+---------------------------+
 	//	|	MUSIC INITIALIZATION	|
 	//	+---------------------------+
-	if (m_music.openFromFile(FILE_MUSIC)) cout << "Music file loaded \n";
+	if (m_music.openFromFile(FILE_MUSIC)) cout << "Success! Music file loaded \n";
 	m_music.setLoop(true);
 	m_music.setVolume(25);
 
@@ -104,8 +104,14 @@ void Engine::input()
 	Event event;
 	static bool mouseClickPrevious = false;	// Tracks if mouse was clicked last frame
 	bool const mouseLeftPressed = Mouse::isButtonPressed(Mouse::Left);
+	Vector2i mousePos(Mouse::getPosition(m_Window)); // Gets mouse position relative to window size
 
-
+	// === Update Button States ===
+	m_playButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
+	m_exitButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
+	m_specialButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
+	m_characterButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
+	
 	// === Experiment with range to change shape diversity ===
 	int min = 8;	// If min < 8, program will sometimes create triangle particles
 	int max = 20;
@@ -113,57 +119,74 @@ void Engine::input()
 
 	while (m_Window.pollEvent(event))
 	{
-		Vector2i mousePos(Mouse::getPosition(m_Window)); // Gets mouse position relative to window size
-		FloatRect playButtonBounds = m_playButton.getGlobalBounds();
-		FloatRect exitButtonBounds = m_exitButton.getGlobalBounds();
-
-		//	+---------------------------+
-		//	|		TITLE SCREEN		|
-		//	+---------------------------+
 		if (event.type == Event::Closed || event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)
 		{
 			m_Window.close();
 		}
-
-		// === Button Hover ===
-		if (event.type == Event::MouseMoved)
+		//	+---------------------------+
+		//	|		TITLE SCREEN		|
+		//	+---------------------------+
+		if (m_playButton.isClicked() && !m_playButtonClicked)
 		{
+			m_playButtonClicked = true;
+			m_particles.clear();
+			cout << "Play button clicked \n";
+		}
+		if (m_exitButton.isClicked() && !m_exitButtonClicked && !m_playButtonClicked)
+		{
+			m_exitButtonClicked = true;
+			m_Window.close();
+			cout << "Exit button clicked \n";
+		}
+		//	+---------------------------+
+		//	|		VOLUME BUTTON		|
+		//	+---------------------------+
+		static bool volumeButtonClicked = false;
+		FloatRect iconBounds = m_border.getGlobalBounds();
 
-			if (playButtonBounds.contains(static_cast<Vector2f>(mousePos)))
+		if (iconBounds.contains(static_cast<Vector2f>(mousePos)))
+		{
+			m_border.setOutlineColor(Color::White);
+
+			if (mouseLeftPressed && !mouseClickPrevious) // Registers as single click
 			{
-				m_playButton.setColor(Color::Yellow);
-				m_playButton.setScale(Vector2f(1.075, 1.075));
-			}
-			else if (exitButtonBounds.contains(static_cast<Vector2f>(mousePos)))
-			{
-				m_exitButton.setColor(Color::Yellow);
-				m_exitButton.setScale(Vector2f(1.075, 1.075));
-			}
-			else
-			{
-				m_playButton.setColor(Color::White);
-				m_playButton.setScale(Vector2f(1.0, 1.0));
-				m_exitButton.setColor(Color::White);
-				m_exitButton.setScale(Vector2f(1.0, 1.0));
+				volumeButtonClicked = !volumeButtonClicked;
+				cout << "Volume button clicked. Volume is now: " << (!volumeButtonClicked ? "On" : "Off") << endl;
+
+				volumeButtonClicked ? m_music.setVolume(0) : m_music.setVolume(25);
+				m_volumeUI.setTexture(!volumeButtonClicked ? m_volumeTextureON : m_volumeTextureOFF);
 			}
 		}
-		// === Button Click ===
-		if (!m_playButtonClicked && mouseLeftPressed && !mouseClickPrevious)
+		else
 		{
-			if (playButtonBounds.contains(static_cast<Vector2f>(mousePos)))
-			{
-				m_playButtonClicked = true;
-				m_particles.clear();
-				cout << "Play button clicked \n";
-			}
+			m_border.setOutlineColor(Color::Transparent);
 		}
-		if (mouseLeftPressed && !mouseClickPrevious && !m_playButtonClicked)
+		//	+---------------------------+
+		//	|		SPECIAL BUTTON		|
+		//	+---------------------------+
+		m_specialButtonClicked = false;
+
+		if (m_specialButton.isClicked() && !m_specialButtonClicked)
 		{
-			if (exitButtonBounds.contains(static_cast<Vector2f>(mousePos)))
+			m_specialButtonClicked = true;
+
+			int random = rand() % (2 - 1 + 1) + 1;
+			for (int i = 0; i < random; i++)
 			{
-				m_exitButtonClicked = true;
-				m_Window.close();
+				specialEvent();
 			}
+			cout << "Special button clicked. \n";
+		}
+		//	+---------------------------+
+		//	|		CHANGE CHARACTER	|
+		//	+---------------------------+
+		if (!mouseLeftPressed) m_characterButtonClicked = false;
+
+		if (m_characterButton.isClicked() && !m_characterButtonClicked)
+		{
+			m_characterButtonClicked = true;
+			changeCharacter();
+			cout << "Change character button clicked. \n";
 		}
 
 		//	+---------------------------+
@@ -190,89 +213,7 @@ void Engine::input()
 			//cout << "Patricle count: " << m_particles.size() << endl;
 		}
 
-		//	+---------------------------+
-		//	|		VOLUME BUTTON		|
-		//	+---------------------------+
-		static bool volumeButtonClicked = false;
-		FloatRect iconBounds = m_border.getGlobalBounds();
-
-		if (iconBounds.contains(static_cast<Vector2f>(mousePos)))
-		{
-			m_border.setOutlineColor(Color::White);
-
-			if (mouseLeftPressed && !mouseClickPrevious) // Registers as single click
-			{
-				volumeButtonClicked = !volumeButtonClicked;
-				cout << "Volume button clicked. Volume is now: " << (!volumeButtonClicked ? "On" : "Off") << endl;
-
-				volumeButtonClicked ? m_music.setVolume(0) : m_music.setVolume(25);
-				m_volumeUI.setTexture(!volumeButtonClicked ? m_volumeTextureON : m_volumeTextureOFF);
-			}
-		}
-		else
-		{
-			m_border.setOutlineColor(Color::Transparent);
-		}
-
-		//	+---------------------------+
-		//	|		SPECIAL BUTTON		|
-		//	+---------------------------+
-		m_specialButtonClicked = false;
-		FloatRect buttonBounds = m_specialButton.getGlobalBounds();
-		buttonBounds.height -= 5;
-
-		if (buttonBounds.contains(static_cast<Vector2f>(mousePos)) && !mouseClickPrevious)
-		{
-			m_specialButton.setScale(Vector2f(1.075, 1.075));
-
-			if (mouseLeftPressed)
-			{
-				m_specialButton.setColor(Color::Color(230, 230, 230));
-				if (!mouseClickPrevious)
-				{
-					int random = rand() % (2 - 1 + 1) + 1;
-					for (int i = 0; i < random; i++)
-					{
-						specialEvent();
-					}
-					cout << "Special button clicked. \n";
-					m_specialButtonClicked = !m_specialButtonClicked;
-				}
-			}
-		}
-		else if (!m_specialButtonClicked)
-		{
-			m_specialButton.setColor(Color::White);
-			m_specialButton.setScale(Vector2f(1.0, 1.0));
-		}
-		//	+---------------------------+
-		//	|		CHANGE CHARACTER	|
-		//	+---------------------------+
-		static bool isCharacterButtonClicked = false;
-		FloatRect characterButtonBounds = m_characterButton.getGlobalBounds();
-
-		if (characterButtonBounds.contains(static_cast<Vector2f>(mousePos)) && !mouseClickPrevious)
-		{
-			m_characterButton.setScale(Vector2f(1.075, 1.075));
-			m_characterButton.setColor(Color::Yellow);
-
-			if (mouseLeftPressed)
-			{
-				m_characterButton.setColor(Color::Color(230, 230, 230));
-				if (!mouseClickPrevious)
-				{
-					changeCharacter();
-					cout << "Change character button clicked. \n";
-					isCharacterButtonClicked = !isCharacterButtonClicked;
-				}
-			}
-		}
-		else if (!isCharacterButtonClicked)
-		{
-			m_characterButton.setColor(Color::White);
-			m_characterButton.setScale(Vector2f(1.0, 1.0));
-		}
-		mouseClickPrevious = mouseLeftPressed;
+		mouseClickPrevious = mouseLeftPressed;	// Always keep this at the end of the input loop
 	}
 }
 
@@ -358,16 +299,16 @@ void Engine::init()
 	// Load font from file, them assign font to Text objects
 	m_font.loadFromFile(FONT_FILE);
 
-	m_gameTitle.Button::setup(m_font, m_Window, "Particles", 50, Vector2f(0, -175));										// Game Title
-	m_playButton.Button::setup(m_font, m_Window, "Play", 25,Vector2f(0, -60));												// Play Button
-	m_exitButton.Button::setup(m_font, m_Window, "Exit", 25, Vector2f(0, -25));												// Exit Button
-	m_specialButton.Button::setup(m_font, m_Window, "i love computer science!", 50, Vector2f(0, -200));						// Special Button
-	m_characterButton.Button::setup(m_font, m_Window, "change character?", 22, Vector2f(-385, 245)); // Change Character Button
-
+	m_gameTitle.Button::setup(m_font, m_Window, "Particles", 50, Vector2f(0, -175));						// Game Title
+	m_playButton.Button::setup(m_font, m_Window, "Play", 25,Vector2f(0, -60));								// Play Button
+	m_exitButton.Button::setup(m_font, m_Window, "Exit", 25, Vector2f(0, -25));								// Exit Button
+	m_specialButton.Button::setup(m_font, m_Window, "i love computer science!", 50, Vector2f(0, -200));		// Special Button
+	m_characterButton.Button::setup(m_font, m_Window, "change character?", 22, Vector2f(-385, 245));		// Change Character Button
+		
 
 	// Volume Texture
-	if (m_volumeTextureON.loadFromFile(FILE_VOLUME_ON)) cout << "Volume on texture loaded \n";
-	if (m_volumeTextureOFF.loadFromFile(FILE_VOLUME_OFF)) cout << "Volume off texture loaded \n";
+	if (m_volumeTextureON.loadFromFile(FILE_VOLUME_ON)) cout << "Success! Volume on texture loaded \n";
+	if (m_volumeTextureOFF.loadFromFile(FILE_VOLUME_OFF)) cout << "Success! Volume off texture loaded \n";
 	
 	Vector2f textureSize = static_cast<Vector2f>(m_volumeTextureON.getSize());
 
@@ -397,7 +338,7 @@ void Engine::specialEvent()
 {
 	m_spawnBox = FloatRect(0, -50, m_Window.getSize().x, 5);	// left, top, width, height
 	int min = 8;
-	int max = 15;
+	int max = 13;
 	int numParticles = rand() % 10 + 7;
 	
 	int random = rand() % (max - min + 1) + min;

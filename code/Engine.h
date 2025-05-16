@@ -1,6 +1,7 @@
 #pragma once
 #include "Particle.h"
 #include "config.h"
+#include "Button.h"
 using namespace sf;
 using namespace std;
 
@@ -12,24 +13,6 @@ struct CharacterSettings
 	Vector2f position;		// Custom position
 	Vector2f offset;		// Offset from origin
 	int frameCount;			// Number of frames
-};
-
-class Button : public Text
-{
-public:
-	void setup(const Font& font, const RenderWindow& window, const string& str, unsigned int size, const Vector2f& offsetPos = {0, 0})
-	{
-		setFont(font);
-		setFillColor(Color::White);
-		setString(str);
-		setCharacterSize(size);
-
-		// Center origin
-		setOrigin(getLocalBounds().width / 2, getLocalBounds().height / 2);
-
-		// Set position with the offset
-		setPosition(window.getSize().x / 2 + offsetPos.x, window.getSize().y / 2 + offsetPos.y);
-	}
 };
 
 class Engine
@@ -77,6 +60,7 @@ private:
 		bool m_playButtonClicked;	// 'Was button clicked?'
 		bool m_exitButtonClicked;
 		bool m_specialButtonClicked;
+		bool m_characterButtonClicked;
 
 		// Special Event
 		FloatRect m_spawnBox;
