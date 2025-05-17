@@ -2,9 +2,10 @@
 
 Engine::Engine()
 {
-	VideoMode WINDOW_MODE(WINDOW_WIDTH, WINDOW_HEIGHT);
-	m_Window.create(WINDOW_MODE, WINDOW_TITLE);
-	m_Window.setFramerateLimit(TARGET_FPS);
+	setupWindow(m_Window);
+	//VideoMode WINDOW_MODE(WINDOW_WIDTH, WINDOW_HEIGHT);
+	//m_Window.create(WINDOW_MODE, WINDOW_TITLE);
+	//m_Window.setFramerateLimit(TARGET_FPS);
 
 	//	+---------------------------+
 	//	|	MUSIC INITIALIZATION	|
@@ -98,7 +99,7 @@ void Engine::run()
 	Clock clock;
 	// *********** UNIT TEST ************
 	cout << "Starting Particle unit tests..." << endl;
-	Particle p(m_Window, 4, { (int)m_Window.getSize().x / 2, (int)m_Window.getSize().y / 2 });
+	Particle p(m_Window, 4, { (int)WINDOW_WIDTH / 2, (int)WINDOW_HEIGHT / 2 });
 	p.unitTests();
 	cout << "Unit tests complete.  Starting engine..." << endl;
 	// **********************************
@@ -119,7 +120,9 @@ void Engine::input()
 	Event event;
 	static bool mouseClickPrevious = false;	// Tracks if mouse was clicked last frame
 	bool const mouseLeftPressed = Mouse::isButtonPressed(Mouse::Left);
-	Vector2i mousePos(Mouse::getPosition(m_Window)); // Gets mouse position relative to window size
+
+	Vector2i relativePos(Mouse::getPosition(m_Window));										 // Gets mouse position relative to window size
+	Vector2i const mousePos = static_cast<Vector2i>(m_Window.mapPixelToCoords(relativePos)); // Adjusts mouse position to work with window resize
 
 	// === Update Button States ===
 	m_playButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
@@ -247,7 +250,7 @@ void Engine::update(float dtAsSeconds)
 		m_sprite.setTexture(m_frames[m_currentFrame]);			// Updates sprite texture to draw current frame
 	}
 
-	FloatRect killbox(0, m_Window.getSize().y, m_Window.getSize().x, 100); // Despawn particles that fall off-screen
+	FloatRect killbox(0, WINDOW_HEIGHT, WINDOW_WIDTH, 100); // Despawn particles that fall off-screen
 
 	// Logic for updating particles and TTL
 	for (auto it = m_particles.begin(); it != m_particles.end();)
@@ -351,7 +354,7 @@ void Engine::init()
 
 void Engine::specialEvent()
 {
-	m_spawnBox = FloatRect(0, -50, m_Window.getSize().x, 5);	// left, top, width, height
+	m_spawnBox = FloatRect(0, -50, WINDOW_WIDTH, 5);	// left, top, width, height
 	int min = 8;
 	int max = 13;
 	int numParticles = rand() % 10 + 7;

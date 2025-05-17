@@ -7,6 +7,26 @@ std::string const WINDOW_TITLE = "Particles!";
 constexpr int WINDOW_WIDTH = 1920 / 2;
 constexpr int WINDOW_HEIGHT = 1080 / 2;
 constexpr int TARGET_FPS = 30;
+constexpr int ANTIALIAS_LEVEL = 10;
+
+inline void setupWindow(sf::RenderWindow& window)
+{
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = ANTIALIAS_LEVEL;
+
+    window.create(
+        sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Default, settings);
+
+    auto const desktop = sf::VideoMode::getDesktopMode();
+    auto windowSize = window.getSize();
+    window.setPosition({ static_cast<int>(desktop.width / 2 - windowSize.x / 2),
+        static_cast<int>(desktop.height / 2 - windowSize.y / 2) });
+
+    window.setFramerateLimit(TARGET_FPS);
+
+    auto applied = window.getSettings();
+    std::cout << "Anti-Aliasing: " << applied.antialiasingLevel << "x\n";
+}
 
 // Fonts
 std::string const FONT_FILE = "assets/fonts/Celsius Flower.ttf";
