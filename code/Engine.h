@@ -66,6 +66,7 @@ private:
 	// Music button
 	SpriteButton m_musicButton;
 	Texture m_musicButtonTexture;
+	Clock m_musicCooldown;	// Gives music button a cooldown to prevent bugs from rapid clicking
 
 	// Volume button
 	SpriteButton m_volumeButton;

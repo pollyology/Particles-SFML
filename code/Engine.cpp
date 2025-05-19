@@ -204,11 +204,13 @@ void Engine::input()
 		//	|		MUSIC BUTTON		|
 		//	+---------------------------+
 		m_musicButtonClicked = false;
+		float cooldownTime = m_musicCooldown.getElapsedTime().asSeconds();
 
-		if (m_musicButton.isClicked() && !m_musicButtonClicked)
+		if (m_musicButton.isClicked() && !m_musicButtonClicked && cooldownTime > 0.3f)
 		{
 			m_musicButtonClicked = true;
 			cout << "Change music button clicked! \n";
+
 			changeMusic();
 		}
 		//	+---------------------------+
@@ -360,19 +362,6 @@ void Engine::init()
 	m_specialButton.Button::setup(m_font, m_Window, "i love computer science!", 50, Vector2f(0, -200));		// Special Button
 	m_characterButton.Button::setup(m_font, m_Window, "change character?", 22, Vector2f(-380, 245));		// Change Character Button
 
-			// Additional settings
-			// m_gameTitle.setOutlineColor(Color::Black);
-			// m_playButton.setOutlineColor(Color::Black);
-			// m_exitButton.setOutlineColor(Color::Black);
-			// m_specialButton.setOutlineColor(Color::Black);
-			// m_characterButton.setOutlineColor(Color::Black);
-			
-			// m_gameTitle.setOutlineThickness(2.5);
-			// m_playButton.setOutlineThickness(2.5);
-			// m_exitButton.setOutlineThickness(2.5);
-			// m_specialButton.setOutlineThickness(2.5);
-			// m_characterButton.setOutlineThickness(2.5);
-
 	// Volume Button
 	if (m_volumeTextureON.loadFromFile(FILE_VOLUME_ON)) cout << "Success! Volume on texture loaded \n";
 	if (m_volumeTextureOFF.loadFromFile(FILE_VOLUME_OFF)) cout << "Success! Volume off texture loaded \n";
@@ -385,17 +374,6 @@ void Engine::init()
 		Vector2f position(WINDOW_WIDTH - m_volumeTextureON.getSize().x - padding, WINDOW_HEIGHT - m_volumeTextureON.getSize().y - padding);
 		m_volumeUI.setPosition(position);
 		m_volumeButton.setButtonPosition(position);
-	
-
-	// Volume Border
-	// Vector2f borderSize = Vector2f(m_volumeUI.getLocalBounds().width + (padding + 5), m_volumeUI.getLocalBounds().height + (padding + 5)); // Aw yeah baby, centers border outline around icon
-
-	// m_border.setSize(borderSize);
-	// m_border.setOrigin(borderSize / 2.0f);
-	// m_border.setPosition(position);
-	// m_border.setFillColor(Color::Transparent);
-	// m_border.setOutlineColor(Color::White);
-	// m_border.setOutlineThickness(2.0f);
 
 	// Music Button
 	if (m_musicButtonTexture.loadFromFile(FILE_MUSIC_ON)) cout << "Success! Music texture loaded \n";
@@ -450,11 +428,13 @@ void Engine::changeCharacter()
 
 void Engine::changeMusic()
 {
-	m_musicIndex = (m_musicIndex + 1) % m_musicPlaylist.size();
+	//cout << "Music index before: " << m_musicIndex << endl;
 	m_music.stop();
+	m_musicIndex = (m_musicIndex + 1) % m_musicPlaylist.size();
 	loadMusic(m_musicIndex);
 	m_music.play();
 
+	//cout << "Music index after: " << m_musicIndex << endl;
 	cout << "Now playing: " << SONG_LIST[m_musicIndex] << endl;
 }
 
