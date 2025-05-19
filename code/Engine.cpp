@@ -116,7 +116,7 @@ void Engine::loadMusic(int musicIndex)
 		if (m_music.openFromFile(m_musicPlaylist[musicIndex]))
 		{
 			m_music.setLoop(true);
-			m_music.setVolume(25);
+			m_music.setVolume(m_volumeOn ? 25 : 0);
 			cout << "Success! Music loaded \n";
 		}
 	}
@@ -199,6 +199,9 @@ void Engine::input()
 			cout << "Volume button clicked. Volume is now: " << (volumeOn ? "On" : "Off") << endl;
 			m_music.setVolume(volumeOn ? 25 : 0);
 			m_volumeButton.getSprite().setTexture(volumeOn ? m_volumeTextureON : m_volumeTextureOFF);
+
+			if (volumeOn) m_volumeOn = true;
+			else m_volumeOn = false;
 		}
 		//	+---------------------------+
 		//	|		MUSIC BUTTON		|

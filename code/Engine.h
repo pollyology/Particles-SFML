@@ -72,6 +72,7 @@ private:
 	SpriteButton m_volumeButton;
 	Texture m_volumeTextureON;
 	Texture m_volumeTextureOFF;
+	bool m_volumeOn;
 
 	Sprite m_volumeUI;
 	RectangleShape m_border;
