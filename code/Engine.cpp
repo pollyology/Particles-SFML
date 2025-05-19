@@ -10,8 +10,10 @@ Engine::Engine()
 	//	+---------------------------+
 	//	|	MUSIC INITIALIZATION	|
 	//	+---------------------------+
+	cout << "Music? " << (m_volumeOn ? "On" : "Off") << endl;
 	m_musicIndex = 0;
 	loadMusic(0);
+	cout << "Now playing: " << SONG_LIST[m_musicIndex] << endl;
 
 	//	+-------------------------------+
 	//	|		CHARACTER SETTINGS		|
