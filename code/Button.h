@@ -69,7 +69,7 @@ private:
 	bool m_isHovered = false;
 	bool m_isClicked = false;
 	Color m_color = Color::White;
-	Color m_hoverColor = Color::Yellow;
+	Color m_hoverColor = Color::White;
 	Vector2f m_scale = { 1.0f, 1.0f };
 	Vector2f m_hoverScale = { 1.1f, 1.1f };
 

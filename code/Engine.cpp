@@ -159,6 +159,7 @@ void Engine::input()
 	m_specialButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
 	m_characterButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
 	m_musicButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
+	m_volumeButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
 	
 	// === Experiment with range to change shape diversity ===
 	int min = 8;	// If min < 8, program will sometimes create triangle particles
@@ -189,25 +190,15 @@ void Engine::input()
 		//	+---------------------------+
 		//	|		VOLUME BUTTON		|
 		//	+---------------------------+
-		static bool volumeButtonClicked = false;
-		FloatRect iconBounds = m_border.getGlobalBounds();
+		static bool volumeOn = true;
 
-		if (iconBounds.contains(static_cast<Vector2f>(mousePos)))
+		if (m_volumeButton.isClicked())
 		{
-			m_border.setOutlineColor(Color::White);
+			volumeOn = !volumeOn;
 
-			if (mouseLeftPressed && !mouseClickPrevious) // Registers as single click
-			{
-				volumeButtonClicked = !volumeButtonClicked;
-				cout << "Volume button clicked. Volume is now: " << (!volumeButtonClicked ? "On" : "Off") << endl;
-
-				volumeButtonClicked ? m_music.setVolume(0) : m_music.setVolume(25);
-				m_volumeUI.setTexture(!volumeButtonClicked ? m_volumeTextureON : m_volumeTextureOFF);
-			}
-		}
-		else
-		{
-			m_border.setOutlineColor(Color::Transparent);
+			cout << "Volume button clicked. Volume is now: " << (volumeOn ? "On" : "Off") << endl;
+			m_music.setVolume(volumeOn ? 25 : 0);
+			m_volumeButton.getSprite().setTexture(volumeOn ? m_volumeTextureON : m_volumeTextureOFF);
 		}
 		//	+---------------------------+
 		//	|		MUSIC BUTTON		|
@@ -220,7 +211,6 @@ void Engine::input()
 			cout << "Change music button clicked! \n";
 			changeMusic();
 		}
-
 		//	+---------------------------+
 		//	|		SPECIAL BUTTON		|
 		//	+---------------------------+
@@ -235,7 +225,7 @@ void Engine::input()
 			{
 				specialEvent();
 			}
-			cout << "Special button clicked! \n";
+			//cout << "Special button clicked! \n";
 		}
 		//	+---------------------------+
 		//	|		CHANGE CHARACTER	|
@@ -248,7 +238,6 @@ void Engine::input()
 			cout << "Change character button clicked! \n";
 			changeCharacter();
 		}
-
 		//	+---------------------------+
 		//	|		PARTICLES LOGIC		|
 		//	+---------------------------+
@@ -344,6 +333,7 @@ void Engine::draw()
 		}
 
 		m_musicButton.draw(m_Window);
+		m_volumeButton.draw(m_Window);
 		m_Window.draw(m_volumeUI);
 		m_Window.draw(m_border);
 		//m_Window.draw(m_cursor);
@@ -383,38 +373,34 @@ void Engine::init()
 			// m_specialButton.setOutlineThickness(2.5);
 			// m_characterButton.setOutlineThickness(2.5);
 
-	// Volume Texture
+	// Volume Button
 	if (m_volumeTextureON.loadFromFile(FILE_VOLUME_ON)) cout << "Success! Volume on texture loaded \n";
 	if (m_volumeTextureOFF.loadFromFile(FILE_VOLUME_OFF)) cout << "Success! Volume off texture loaded \n";
-	
-	Vector2f textureSize = static_cast<Vector2f>(m_volumeTextureON.getSize());
-
-	// Volume Sprite
-	m_volumeUI.setTexture(m_volumeTextureON);
-	m_volumeUI.setOrigin(textureSize / 2.0f);
-	m_volumeUI.setScale(Vector2f(2.0, 2.0));
-	m_volumeUI.setColor(Color::Blue);
+	m_volumeButton.setButtonScale(Vector2f(2.0, 2.0));
+	m_volumeButton.setHoverScale(Vector2f(2.2, 2.2));
+	m_volumeButton.setup(m_volumeTextureON, m_Window, Vector2f(0, 0));
 
 		// Sets padding of border from window 
 		float padding = 15.0f;
-		Vector2f position(WINDOW_WIDTH - textureSize.x - padding, WINDOW_HEIGHT - textureSize.y - padding);
+		Vector2f position(WINDOW_WIDTH - m_volumeTextureON.getSize().x - padding, WINDOW_HEIGHT - m_volumeTextureON.getSize().y - padding);
 		m_volumeUI.setPosition(position);
+		m_volumeButton.setButtonPosition(position);
+	
 
 	// Volume Border
-	Vector2f borderSize = Vector2f(m_volumeUI.getLocalBounds().width + (padding + 5), m_volumeUI.getLocalBounds().height + (padding + 5)); // Aw yeah baby, centers border outline around icon
+	// Vector2f borderSize = Vector2f(m_volumeUI.getLocalBounds().width + (padding + 5), m_volumeUI.getLocalBounds().height + (padding + 5)); // Aw yeah baby, centers border outline around icon
 
-	m_border.setSize(borderSize);
-	m_border.setOrigin(borderSize / 2.0f);
-	m_border.setPosition(position);
-	m_border.setFillColor(Color::Transparent);
-	m_border.setOutlineColor(Color::White);
-	m_border.setOutlineThickness(2.0f);
+	// m_border.setSize(borderSize);
+	// m_border.setOrigin(borderSize / 2.0f);
+	// m_border.setPosition(position);
+	// m_border.setFillColor(Color::Transparent);
+	// m_border.setOutlineColor(Color::White);
+	// m_border.setOutlineThickness(2.0f);
 
 	// Music Button
 	if (m_musicButtonTexture.loadFromFile(FILE_MUSIC_ON)) cout << "Success! Music texture loaded \n";
 	m_musicButton.setButtonScale(Vector2f(2.125, 2.125));
 	m_musicButton.setHoverScale(Vector2f(2.3375, 2.3375));
-	m_musicButton.setHoverColor(Color::White);
 	m_musicButton.setup(m_musicButtonTexture, m_Window, Vector2f(0, 0));
 	m_musicButton.setButtonPosition({ position.x - 40, position.y + 2});	// Call setButtonPosition after setup to override default settings
 }

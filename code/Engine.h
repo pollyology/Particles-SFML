@@ -41,8 +41,8 @@ private:
 			// Edit to change order characters appear in program
 			RAINBOW_DASH,
 			FLUTTERSHY,
-			PINKIE_PIE,
-			TWILIGHT_SPARKLE
+			TWILIGHT_SPARKLE,
+			PINKIE_PIE
 		};
 			
 	string m_directory;	  // The file directory containing the animation
@@ -67,12 +67,14 @@ private:
 	SpriteButton m_musicButton;
 	Texture m_musicButtonTexture;
 
-	// Texture and Sprite to display volume UI
+	// Volume button
+	SpriteButton m_volumeButton;
 	Texture m_volumeTextureON;
 	Texture m_volumeTextureOFF;
 
 	Sprite m_volumeUI;
 	RectangleShape m_border;
+
 	// Text to create Title Screen w/ 'Play' and 'Exit' options
 	Button m_gameTitle;
 	Button m_playButton;
