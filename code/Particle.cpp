@@ -43,8 +43,8 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosit
     /*END CODE ADDED 5/15/2025 5:42PM*/
 
     //Original Color Scheme
-    m_color1 = Color::Red;  
-    m_color2 = Color::Blue;
+    m_color1 = Color(252, 193, 26);
+    m_color2 = Color::Yellow;
 
     m_lines.setPrimitiveType(TriangleFan);
     m_lines.resize(m_numPoints + 1);
@@ -60,7 +60,7 @@ Particle::Particle(RenderTarget& target, int numPoints, Vector2i mouseClickPosit
     double dTheta = 2 * M_PI / (numPoints - 1);
 
     // Logic for making star-like shapes
-    double outerRadius = rand() % 61 + 12; // A random distance - determines length of each 'tip' of the star
+    double outerRadius = rand() % 66 + 12; // A random distance - determines length of each 'tip' of the star
     double innerRadius = outerRadius / 2; // A fraction of outer radius - determines depth of each 'dip' of the star
 
     for (int j = 0; j < numPoints; j++)

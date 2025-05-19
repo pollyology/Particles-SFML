@@ -14,6 +14,7 @@ struct CharacterSettings
 	Vector2f position;		// Custom position
 	Vector2f offset;		// Offset from origin
 	int frameCount;			// Number of frames
+	float frameTime;		// Seconds per frame
 };
 
 class Engine
@@ -31,24 +32,47 @@ private:
 	// Sprite to display the current animation frame
 	Sprite m_sprite;
 	string m_currentCharacter;
-	map<string, CharacterSettings> m_characterMap;
+	int m_characterIndex = 0;
 
+		// Structures to access character
+		map<string, CharacterSettings> m_characterMap;
+		vector<string> m_characterList =
+		{
+			// Edit to change order characters appear in program
+			RAINBOW_DASH,
+			FLUTTERSHY,
+			PINKIE_PIE,
+			TWILIGHT_SPARKLE
+		};
+			
 	string m_directory;	  // The file directory containing the animation
 	int m_frameCount;	 // Number of total frames in animation
 	int m_currentFrame; // Current frame number of animation
 	float m_frameTime; // Amount of time spent per frame (seconds)
 	float m_dt;       // Measure amount of elapsed time (seconds)
 	
+	// Music to play during program, can be toggled ON/OFF
+	Music m_music;
+	int m_musicIndex;
+	string m_currentSong;
+		
+		// Structure to access music playlist
+		vector<string> m_musicPlaylist
+		{
+			FILE_MUSIC_1,
+			FILE_MUSIC_2,
+			FILE_MUSIC_3,
+		};
+	// Music button
+	SpriteButton m_musicButton;
+	Texture m_musicButtonTexture;
+
 	// Texture and Sprite to display volume UI
 	Texture m_volumeTextureON;
 	Texture m_volumeTextureOFF;
 
 	Sprite m_volumeUI;
 	RectangleShape m_border;
-
-	// Music to play during program, can be toggled ON/OFF
-	Music m_music;
-	
 	// Text to create Title Screen w/ 'Play' and 'Exit' options
 	Button m_gameTitle;
 	Button m_playButton;
@@ -62,6 +86,7 @@ private:
 		bool m_exitButtonClicked;
 		bool m_specialButtonClicked;
 		bool m_characterButtonClicked;
+		bool m_musicButtonClicked;
 
 		// Special Event
 		FloatRect m_spawnBox;
@@ -76,6 +101,8 @@ private:
 		void init();
 		void specialEvent();
 		void changeCharacter();
+		void changeMusic();
+		void loadMusic(int musicIndex);
 		void loadAnimation(const CharacterSettings& settings);
 
 public:

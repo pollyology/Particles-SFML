@@ -10,9 +10,8 @@ Engine::Engine()
 	//	+---------------------------+
 	//	|	MUSIC INITIALIZATION	|
 	//	+---------------------------+
-	if (m_music.openFromFile(FILE_MUSIC)) cout << "Success! Music file loaded \n";
-	m_music.setLoop(true);
-	m_music.setVolume(25);
+	m_musicIndex = 0;
+	loadMusic(0);
 
 	//	+-------------------------------+
 	//	|		CHARACTER SETTINGS		|
@@ -25,7 +24,9 @@ Engine::Engine()
 		Vector2f(1.0, 1.0),								// Set scale
 		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),	// Set position
 		Vector2f(-5, 10),								// Set offset of x,y from center
-		103												// Set number of frames
+		103,											// Set number of frames
+		0.025f											// Set amount of frametime (seconds)
+
 	};
 
 	m_characterMap[RAINBOW_DASH] =
@@ -36,27 +37,40 @@ Engine::Engine()
 		Vector2f(0.5, 0.5),
 		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
 		Vector2f(-75, 0),
-		27
+		27,
+		0.025f
 	};
 
-	/*
+	m_characterMap[TWILIGHT_SPARKLE] =
+	{
+		"Twilight Sparkle",
+		TWILIGHT_SPARKLE,
+		Color(199, 157, 215, 155),
+		Vector2f(1.0, 1.0),
+		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
+		Vector2f(-10, 15),
+		13,
+		0.05f
+	};
+
 	m_characterMap[PINKIE_PIE] =
 	{
 		"Pinkie Pie",
 		PINKIE_PIE,
-		Color(239, 79, 145, 155),
-		Vector2f(0.5, 0.5),
+		Color(246, 171, 199, 155),
+		Vector2f(0.55, 0.55),
 		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
-		Vector2f(0, 0),
-		9
+		Vector2f(-20, 0),
+		20,
+		0.0175f
 	};
-	*/
+
 
 	//	+-------------------------------+
 	//	|		ANIMATION HANDLING		|
 	//	+-------------------------------+
-		m_currentCharacter = RAINBOW_DASH;
-		loadAnimation(m_characterMap[m_currentCharacter]); // Load default animation (Rainbow Dash)
+	m_currentCharacter = RAINBOW_DASH;
+	loadAnimation(m_characterMap[m_currentCharacter]); // Load default animation (Rainbow Dash)
 
 	//	+-------------------------------+
 	//	|		UI INITIALIZATION		|
@@ -90,18 +104,33 @@ void Engine::loadAnimation(const CharacterSettings& settings)
 
 	// Animation Settings
 	m_currentFrame = 0;
-	m_frameTime = 0.025f; // Tweak to adjust animation speed, smaller = faster
+	m_frameTime = settings.frameTime; // Tweak to adjust animation speed, smaller = faster
 	m_dt = 0;
+}
+
+void Engine::loadMusic(int musicIndex)
+{
+	if (musicIndex < 0 || musicIndex > m_musicPlaylist.size()) cout << "Invalid music index: " << musicIndex << endl;
+	else
+	{
+		if (m_music.openFromFile(m_musicPlaylist[musicIndex]))
+		{
+			m_music.setLoop(true);
+			m_music.setVolume(25);
+			cout << "Success! Music loaded \n";
+		}
+	}
+
 }
 
 void Engine::run()
 {
 	Clock clock;
 	// *********** UNIT TEST ************
-	cout << "Starting Particle unit tests..." << endl;
-	Particle p(m_Window, 4, { (int)WINDOW_WIDTH / 2, (int)WINDOW_HEIGHT / 2 });
-	p.unitTests();
-	cout << "Unit tests complete.  Starting engine..." << endl;
+	// cout << "Starting Particle unit tests..." << endl;
+	// Particle p(m_Window, 4, { (int)WINDOW_WIDTH / 2, (int)WINDOW_HEIGHT / 2 });
+	// p.unitTests();
+	// cout << "Unit tests complete.  Starting engine..." << endl;
 	// **********************************
 
 	while (m_Window.isOpen())
@@ -129,11 +158,12 @@ void Engine::input()
 	m_exitButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
 	m_specialButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
 	m_characterButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
+	m_musicButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
 	
 	// === Experiment with range to change shape diversity ===
 	int min = 8;	// If min < 8, program will sometimes create triangle particles
 	int max = 20;
-	int numParticles = 5; // number of particles you want to create per click
+	int numParticles = 5 + rand() % 6; // number of particles you want to create per click
 
 	while (m_Window.pollEvent(event))
 	{
@@ -180,6 +210,18 @@ void Engine::input()
 			m_border.setOutlineColor(Color::Transparent);
 		}
 		//	+---------------------------+
+		//	|		MUSIC BUTTON		|
+		//	+---------------------------+
+		m_musicButtonClicked = false;
+
+		if (m_musicButton.isClicked() && !m_musicButtonClicked)
+		{
+			m_musicButtonClicked = true;
+			cout << "Change music button clicked! \n";
+			changeMusic();
+		}
+
+		//	+---------------------------+
 		//	|		SPECIAL BUTTON		|
 		//	+---------------------------+
 		m_specialButtonClicked = false;
@@ -193,7 +235,7 @@ void Engine::input()
 			{
 				specialEvent();
 			}
-			cout << "Special button clicked. \n";
+			cout << "Special button clicked! \n";
 		}
 		//	+---------------------------+
 		//	|		CHANGE CHARACTER	|
@@ -203,8 +245,8 @@ void Engine::input()
 		if (m_characterButton.isClicked() && !m_characterButtonClicked)
 		{
 			m_characterButtonClicked = true;
+			cout << "Change character button clicked! \n";
 			changeCharacter();
-			cout << "Change character button clicked. \n";
 		}
 
 		//	+---------------------------+
@@ -214,7 +256,7 @@ void Engine::input()
 		{
 			if (mouseClickPrevious)	// If holding click, limit particles made per frame
 			{
-				numParticles = 1;
+				numParticles = rand() % 3 + 1;
 			}
 
 			for (int i = 0; i < numParticles; i++)
@@ -238,8 +280,11 @@ void Engine::input()
 void Engine::update(float dtAsSeconds)
 {
 	// Start music when 'Play' selected
-	if (!m_playButtonClicked) m_music.play();	// I have no idea why this works
-
+	if (m_playButtonClicked && m_music.getStatus() != sf::Music::Playing)
+	{
+		m_music.play();  // Start music when play button is clicked
+	}
+	 
 	// Logic for updating animation and drawing frames
 	m_dt += dtAsSeconds;
 
@@ -269,6 +314,7 @@ void Engine::update(float dtAsSeconds)
 			it = m_particles.erase(it);
 		}
 	}
+
 }
 
 void Engine::draw()
@@ -297,6 +343,7 @@ void Engine::draw()
 			m_Window.draw(particle);
 		}
 
+		m_musicButton.draw(m_Window);
 		m_Window.draw(m_volumeUI);
 		m_Window.draw(m_border);
 		//m_Window.draw(m_cursor);
@@ -321,8 +368,20 @@ void Engine::init()
 	m_playButton.Button::setup(m_font, m_Window, "Play", 25,Vector2f(0, -60));								// Play Button
 	m_exitButton.Button::setup(m_font, m_Window, "Exit", 25, Vector2f(0, -25));								// Exit Button
 	m_specialButton.Button::setup(m_font, m_Window, "i love computer science!", 50, Vector2f(0, -200));		// Special Button
-	m_characterButton.Button::setup(m_font, m_Window, "change character?", 22, Vector2f(-385, 245));		// Change Character Button
-		
+	m_characterButton.Button::setup(m_font, m_Window, "change character?", 22, Vector2f(-380, 245));		// Change Character Button
+
+			// Additional settings
+			// m_gameTitle.setOutlineColor(Color::Black);
+			// m_playButton.setOutlineColor(Color::Black);
+			// m_exitButton.setOutlineColor(Color::Black);
+			// m_specialButton.setOutlineColor(Color::Black);
+			// m_characterButton.setOutlineColor(Color::Black);
+			
+			// m_gameTitle.setOutlineThickness(2.5);
+			// m_playButton.setOutlineThickness(2.5);
+			// m_exitButton.setOutlineThickness(2.5);
+			// m_specialButton.setOutlineThickness(2.5);
+			// m_characterButton.setOutlineThickness(2.5);
 
 	// Volume Texture
 	if (m_volumeTextureON.loadFromFile(FILE_VOLUME_ON)) cout << "Success! Volume on texture loaded \n";
@@ -334,7 +393,7 @@ void Engine::init()
 	m_volumeUI.setTexture(m_volumeTextureON);
 	m_volumeUI.setOrigin(textureSize / 2.0f);
 	m_volumeUI.setScale(Vector2f(2.0, 2.0));
-	m_volumeUI.setColor(Color::White);	// This is supposed to make the volume sprite white, but doesn't work?
+	m_volumeUI.setColor(Color::Blue);
 
 		// Sets padding of border from window 
 		float padding = 15.0f;
@@ -350,6 +409,14 @@ void Engine::init()
 	m_border.setFillColor(Color::Transparent);
 	m_border.setOutlineColor(Color::White);
 	m_border.setOutlineThickness(2.0f);
+
+	// Music Button
+	if (m_musicButtonTexture.loadFromFile(FILE_MUSIC_ON)) cout << "Success! Music texture loaded \n";
+	m_musicButton.setButtonScale(Vector2f(2.125, 2.125));
+	m_musicButton.setHoverScale(Vector2f(2.3375, 2.3375));
+	m_musicButton.setHoverColor(Color::White);
+	m_musicButton.setup(m_musicButtonTexture, m_Window, Vector2f(0, 0));
+	m_musicButton.setButtonPosition({ position.x - 40, position.y + 2});	// Call setButtonPosition after setup to override default settings
 }
 
 void Engine::specialEvent()
@@ -388,14 +455,21 @@ void Engine::specialEvent()
 
 void Engine::changeCharacter()
 {
-//	+---------------------------+
-//	|		CHANGE CHARACTER	|
-//	+---------------------------+
-	if (m_currentCharacter == RAINBOW_DASH) m_currentCharacter = FLUTTERSHY;
-	else m_currentCharacter = RAINBOW_DASH;
+	m_characterIndex = (m_characterIndex + 1) % m_characterList.size();
+	m_currentCharacter = m_characterList[m_characterIndex];
 
 	loadAnimation(m_characterMap[m_currentCharacter]);
 	cout << "Changed character to " << m_characterMap[m_currentCharacter].name << endl;
+}
+
+void Engine::changeMusic()
+{
+	m_musicIndex = (m_musicIndex + 1) % m_musicPlaylist.size();
+	m_music.stop();
+	loadMusic(m_musicIndex);
+	m_music.play();
+
+	cout << "Now playing: " << SONG_LIST[m_musicIndex] << endl;
 }
 
 
