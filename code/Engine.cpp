@@ -10,10 +10,8 @@ Engine::Engine()
 	//	+---------------------------+
 	//	|	MUSIC INITIALIZATION	|
 	//	+---------------------------+
-	cout << "Music? " << (m_volumeOn ? "On" : "Off") << endl;
 	m_musicIndex = 0;
 	loadMusic(0);
-	cout << "Now playing: " << SONG_LIST[m_musicIndex] << endl;
 
 	//	+-------------------------------+
 	//	|		CHARACTER SETTINGS		|
@@ -149,19 +147,19 @@ void Engine::run()
 void Engine::input()
 {
 	Event event;
-	static bool mouseClickPrevious = false;	// Tracks if mouse was clicked last frame
+	static bool mousePreviouslyClicked = false;	// Tracks if mouse was clicked last frame
 	bool const mouseLeftPressed = Mouse::isButtonPressed(Mouse::Left);
 
 	Vector2i relativePos(Mouse::getPosition(m_Window));										 // Gets mouse position relative to window size
 	Vector2i const mousePos = static_cast<Vector2i>(m_Window.mapPixelToCoords(relativePos)); // Adjusts mouse position to work with window resize
 
 	// === Update Button States ===
-	m_playButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
-	m_exitButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
-	m_specialButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
-	m_characterButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
-	m_musicButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
-	m_volumeButton.update(mousePos, mouseLeftPressed, mouseClickPrevious);
+	m_playButton.update(mousePos, mouseLeftPressed, mousePreviouslyClicked);
+	m_exitButton.update(mousePos, mouseLeftPressed, mousePreviouslyClicked);
+	m_specialButton.update(mousePos, mouseLeftPressed, mousePreviouslyClicked);
+	m_characterButton.update(mousePos, mouseLeftPressed, mousePreviouslyClicked);
+	m_musicButton.update(mousePos, mouseLeftPressed, mousePreviouslyClicked);
+	m_volumeButton.update(mousePos, mouseLeftPressed, mousePreviouslyClicked);
 	
 	// === Experiment with range to change shape diversity ===
 	int min = 8;	// If min < 8, program will sometimes create triangle particles
@@ -250,7 +248,7 @@ void Engine::input()
 		//	+---------------------------+
 		if (mouseLeftPressed && m_playButtonClicked)
 		{
-			if (mouseClickPrevious)	// If holding click, limit particles made per frame
+			if (mousePreviouslyClicked)	// If holding click, limit particles made per frame
 			{
 				numParticles = rand() % 3 + 1;
 			}
@@ -269,7 +267,7 @@ void Engine::input()
 			//cout << "Patricle count: " << m_particles.size() << endl;
 		}
 
-		mouseClickPrevious = mouseLeftPressed;	// Always keep this at the end of the input loop
+		mousePreviouslyClicked = mouseLeftPressed;	// Always keep this at the end of the input loop
 	}
 }
 
