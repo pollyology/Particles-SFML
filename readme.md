@@ -4,13 +4,21 @@
 
 # How to Run (Windows)
 
-Follow these steps to download and run **Particles!** on your Windows PC:
+Follow one of these options to download and run **Particles!** on your Windows PC:
 
-## 1. DOWNLOAD THE FILES
-
+### Option 1: Download ZIP
 - Click the green **"Code"** button on the GitHub page.
 - Select **"Download ZIP"**.
 - Extract the ZIP file somewhere on your computer.
+
+### Option 2: Clone with Git
+- Open **Git Bash** or your terminal.
+- Navigate to the folder where you want to download the project.
+- Run the following command:
+
+```bash
+git clone https://github.com/pollyology/Particles-SFML
+```
 
 
 ## 2. MOVE THE ASSETS FOLDER
