@@ -36,7 +36,7 @@ private:
 
 		// Structures to access character
 		map<string, CharacterSettings> m_characterMap;
-		vector<string> m_characterList =
+		vector<string> m_characterList
 		{
 			// Edit to change order characters appear in program
 			RAINBOW_DASH,

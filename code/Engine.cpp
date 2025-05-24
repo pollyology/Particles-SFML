@@ -215,6 +215,7 @@ void Engine::input()
 			cout << "Change music button clicked! \n";
 
 			changeMusic();
+			m_musicCooldown.restart();
 		}
 		//	+---------------------------+
 		//	|		SPECIAL BUTTON		|
