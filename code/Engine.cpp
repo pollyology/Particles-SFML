@@ -111,16 +111,12 @@ void Engine::loadAnimation(const CharacterSettings& settings)
 void Engine::loadMusic(int musicIndex)
 {
 	if (musicIndex < 0 || musicIndex > m_musicPlaylist.size()) cout << "Invalid music index: " << musicIndex << endl;
-	else
+	else if (m_music.openFromFile(m_musicPlaylist[musicIndex]))
 	{
-		if (m_music.openFromFile(m_musicPlaylist[musicIndex]))
-		{
-			m_music.setLoop(true);
-			m_music.setVolume(m_volumeOn ? 25 : 0);
-			cout << "Success! Music loaded \n";
-		}
+		m_music.setLoop(true);
+		m_music.setVolume(m_volumeOn ? 25 : 0);
+		cout << "Success! Music loaded \n";
 	}
-
 }
 
 void Engine::run()
