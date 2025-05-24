@@ -207,9 +207,9 @@ void Engine::input()
 		//	|		MUSIC BUTTON		|
 		//	+---------------------------+
 		m_musicButtonClicked = false;
-		float cooldownTime = m_musicCooldown.getElapsedTime().asSeconds();
+		float cooldownTimer = m_musicCooldown.getElapsedTime().asSeconds();
 
-		if (m_musicButton.isClicked() && !m_musicButtonClicked && cooldownTime > 0.3f)
+		if (m_musicButton.isClicked() && !m_musicButtonClicked && cooldownTimer > 0.3f)
 		{
 			m_musicButtonClicked = true;
 			cout << "Change music button clicked! \n";
