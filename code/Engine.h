@@ -27,7 +27,8 @@ private:
 	vector<Particle> m_particles;
 
 	// Vector to hold textures for animation
-	vector<Texture> m_frames;
+	vector<Texture> m_frames;						// Stores the frames of a single character animation
+	map<string, vector<Texture>> m_animationCache;	// Stores every character's animation frames
 
 	// Sprite to display the current animation frame
 	Sprite m_sprite;

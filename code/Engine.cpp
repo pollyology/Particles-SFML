@@ -80,17 +80,27 @@ Engine::Engine()
 
 void Engine::loadAnimation(const CharacterSettings& settings)
 {
-	m_frames.clear();
 	m_directory = settings.filename;
 
-	// Load Animation
-	int frameCount = settings.frameCount; // Sets number to character's frame count setting
-
-	for (int i = 0; i < frameCount; i++)
+	// Load animation by cache, if available
+	if (m_animationCache.count(settings.name))
 	{
-		Texture texture;
-		texture.loadFromFile("assets/animation" + m_directory + "/frame_" + std::to_string(i) + ".png");
-		m_frames.push_back(texture);
+		m_frames = m_animationCache[settings.name];
+	}
+	else
+	{
+		// Load animation by reading files
+		m_frames.clear();
+		int frameCount = settings.frameCount; // Sets number to character's frame count setting
+
+		for (int i = 0; i < frameCount; i++)
+		{
+			Texture texture;
+			texture.loadFromFile("assets/animation" + m_directory + "/frame_" + std::to_string(i) + ".png");
+			m_frames.push_back(texture);
+		}
+
+		m_animationCache[settings.name] = m_frames;	// Cache the current animation by assigning frame vector to the pony's name
 	}
 
 	// Sprite Settings
@@ -111,16 +121,12 @@ void Engine::loadAnimation(const CharacterSettings& settings)
 void Engine::loadMusic(int musicIndex)
 {
 	if (musicIndex < 0 || musicIndex > m_musicPlaylist.size()) cout << "Invalid music index: " << musicIndex << endl;
-	else
+	else if (m_music.openFromFile(m_musicPlaylist[musicIndex]))
 	{
-		if (m_music.openFromFile(m_musicPlaylist[musicIndex]))
-		{
-			m_music.setLoop(true);
-			m_music.setVolume(m_volumeOn ? 25 : 0);
-			cout << "Success! Music loaded \n";
-		}
+		m_music.setLoop(true);
+		m_music.setVolume(m_volumeOn ? 25 : 0);
+		cout << "Success! Music loaded \n";
 	}
-
 }
 
 void Engine::run()
@@ -207,9 +213,9 @@ void Engine::input()
 		//	|		MUSIC BUTTON		|
 		//	+---------------------------+
 		m_musicButtonClicked = false;
-		float cooldownTime = m_musicCooldown.getElapsedTime().asSeconds();
+		float cooldownTimer = m_musicCooldown.getElapsedTime().asSeconds();
 
-		if (m_musicButton.isClicked() && !m_musicButtonClicked && cooldownTime > 0.3f)
+		if (m_musicButton.isClicked() && !m_musicButtonClicked && cooldownTimer > 0.3f)
 		{
 			m_musicButtonClicked = true;
 			cout << "Change music button clicked! \n";
