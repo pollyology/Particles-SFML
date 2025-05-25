@@ -6,8 +6,9 @@
 std::string const WINDOW_TITLE = "Particles!";
 constexpr int WINDOW_WIDTH = 1920 / 2;
 constexpr int WINDOW_HEIGHT = 1080 / 2;
-constexpr int TARGET_FPS = 30;
+constexpr int TARGET_FPS = 60;
 constexpr int ANTIALIAS_LEVEL = 8;
+constexpr float MAX_DELTA_TIME = 0.05f;
 
 // Window Settings
 inline void setupWindow(sf::RenderWindow& window)

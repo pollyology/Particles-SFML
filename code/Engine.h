@@ -109,6 +109,7 @@ private:
 		void changeMusic();
 		void loadMusic(int musicIndex);
 		void loadAnimation(const CharacterSettings& settings);
+		void setAnimationSpeed(float fps);
 
 public:
 	// The Engine constructor

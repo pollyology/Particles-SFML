@@ -3,9 +3,6 @@
 Engine::Engine()
 {
 	setupWindow(m_Window);
-	//VideoMode WINDOW_MODE(WINDOW_WIDTH, WINDOW_HEIGHT);
-	//m_Window.create(WINDOW_MODE, WINDOW_TITLE);
-	//m_Window.setFramerateLimit(TARGET_FPS);
 
 	//	+---------------------------+
 	//	|	MUSIC INITIALIZATION	|
@@ -25,7 +22,7 @@ Engine::Engine()
 		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),	// Set position
 		Vector2f(-5, 10),								// Set offset of x,y from center
 		103,											// Set number of frames
-		0.025f											// Set amount of frametime (seconds)
+		0.0333f												// Set amount of frametime (seconds)
 
 	};
 
@@ -38,7 +35,7 @@ Engine::Engine()
 		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
 		Vector2f(-75, 0),
 		27,
-		0.025f
+		0.0333f
 	};
 
 	m_characterMap[TWILIGHT_SPARKLE] =
@@ -62,13 +59,14 @@ Engine::Engine()
 		Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2),
 		Vector2f(-20, 0),
 		20,
-		0.0175f
+		0.030f
 	};
 
 
 	//	+-------------------------------+
 	//	|		ANIMATION HANDLING		|
 	//	+-------------------------------+
+
 	m_currentCharacter = RAINBOW_DASH;
 	loadAnimation(m_characterMap[m_currentCharacter]); // Load default animation (Rainbow Dash)
 
@@ -77,6 +75,7 @@ Engine::Engine()
 	//	+-------------------------------+
 		init();
 }
+
 
 void Engine::loadAnimation(const CharacterSettings& settings)
 {
@@ -287,6 +286,7 @@ void Engine::update(float dtAsSeconds)
 	}
 	 
 	// Logic for updating animation and drawing frames
+	dtAsSeconds = min(dtAsSeconds, MAX_DELTA_TIME);
 	m_dt += dtAsSeconds;
 
 	if (m_dt >= m_frameTime)
@@ -398,7 +398,7 @@ void Engine::specialEvent()
 	m_spawnBox = FloatRect(0, -50, WINDOW_WIDTH, 5);	// left, top, width, height
 	int min = 8;
 	int max = 13;
-	int numParticles = rand() % 10 + 7;
+	int numParticles = rand() % 13 + 9;
 	
 	int random = rand() % (max - min + 1) + min;
 	if (random % 2 == 0) { random++; } // Ensures random number is odd, even numbers create 'floppy' shapes
