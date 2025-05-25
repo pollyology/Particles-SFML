@@ -4,6 +4,7 @@
 
 # How to Run (Windows)
 
+## 1. DOWNLOAD THE PROJECT
 Follow one of these options to download and run **Particles!** on your Windows PC:
 
 ### Option 1: Download ZIP
